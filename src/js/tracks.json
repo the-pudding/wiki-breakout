@@ -2,6 +2,19 @@
   {
     "id": "cardi",
     "trigger": 0.05,
-    "fromMid": 0
+    "prevMid": 1,
+    "curMid": 1
+  },
+  {
+    "id": "xxxtentacion",
+    "trigger": 0.1,
+    "prevMid": 1,
+    "curMid": 1
+  },
+  {
+    "id": "logan",
+    "trigger": 0.35,
+    "prevMid": 1,
+    "curMid": 1
   }
 ]

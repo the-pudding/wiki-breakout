@@ -90,8 +90,6 @@ function renderTracks() {
 	$trackEnter.each((d, i, n) => {
 		tracks[i].el = n[i]
 	})
-
-	console.log(tracks)
 }
 
 function renderInfo(data) {
@@ -260,15 +258,16 @@ function updateScroll() {
 		if (opacity === 1) $el.raise();
 	});
 
+
 	tracks.forEach(t => {
 		const { top } = t.el.getBoundingClientRect();
 		const fromMid = top - halfH;
-		t.prevMid = t.curMid
+		t.prevMid = t.curMid;
 		t.curMid = fromMid;
 	});
-
-	const filteredTracks = tracks.filter(t => t.prevMid >= 0 && t.curMid < 0)
-	filteredTracks.sort((a, b) => d3.ascending(a.curMid, b.curMid))
+	
+	const filteredTracks = tracks.filter(t => t.prevMid * t.curMid <= 0)
+	filteredTracks.sort((a, b) => d3.descending(Math.abs(a.curMid), Math.abs(b.curMid)))
 	const trackToPlay = filteredTracks.pop();
 	if (trackToPlay) Audio.play(trackToPlay)
 }
