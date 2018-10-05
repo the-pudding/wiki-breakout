@@ -81,11 +81,19 @@ function handleNameClick(d) {
 }
 
 function handlePersonEnter({ article }) {
-	$vis.select(`[data-article="${article}"]`).st({ opacity: 1 });
+	$vis.select(`[data-article="${article}"]`).st('opacity', 1);
+	const $person = d3.select(this);
+	
+	$person.classed('is-hover', true)
+		.at('data-opacity', $person.st('opacity'))
+		.st('opacity', 1);
 }
 
 function handlePersonExit({ article }) {
-	$vis.select(`[data-article="${article}"]`).st({ opacity: 0.1 });
+	$vis.select(`[data-article="${article}"]`).st('opacity', 0.1);
+	const $person = d3.select(this);
+	$person.classed('is-hover', false)
+		.st('opacity', +$person.at('data-opacity'));
 }
 
 function translatePerson(d) {
@@ -290,7 +298,7 @@ function updateNametag(el) {
 function updateVis(el) {}
 
 function updateInfo(el) {
-	const $person = d3.select(el)
+	const $person = d3.select(el);
 	$infoPerson.classed('is-active', false);
 	$person.classed('is-active', true).raise();
 }
@@ -312,7 +320,7 @@ function updateScroll() {
 
 		const $el = d3.select(el);
 		$el.st({ opacity });
-		if (opacity === 1) $el.raise();
+		// if (opacity === 1) $el.raise();
 	});
 	if (currentNametagIndex !== closest.index) {
 		currentNametagIndex = closest.index;

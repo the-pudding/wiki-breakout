@@ -36,11 +36,22 @@
 			align-items center
 			margin-left $thumb-size * 0.5
 			cursor pointer
+			&.is-hover
+				p.name
+					opacity 1
+					transform translate($thumb-size * 0.25, $thumb-size * -0.25)
+				.thumbnail
+					filter grayscale(50%)
 			&.is-active
 				p.name
 					opacity 1
+					transform translate(0,0)
 				.thumbnail
 					filter grayscale(50%)
+					transform scale(1)
+			
+
+					
 		p.name
 			margin 0.5em
 			set-type-size(medium, false)
@@ -48,29 +59,31 @@
 			order 0
 			text-align right
 			opacity 0
-			text-shadow 0 0 5px white
+			text-shadow 0 0 5px $bg
 			font-weight 600
-			background rgba(white, 0.5)
+			background rgba($bg, 0.75)
 			border-radius 5px
 			padding 0 0.25em
 
 		.thumbnail
 			min-width $thumb-size
 			min-height $thumb-size
-			background $gray-light
+			background $yellow
 			border-radius 50%
-			border 1px solid $gray
+			border 1px solid $yellow
 			background-repeat no-repeat
 			background-size cover
 			background-position 50% 0
 			filter grayscale(100%)
 			box-shadow 0 0 6px 3px $bg
+			transform scale(0.5) translateY(-50%)
+			transition transform 250ms ease-in-out
 		
 		.overlay
 			width 100%
 			height 100%
 			position absolute
-			background white
+			background $bg
 		
 
 		.track
