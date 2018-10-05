@@ -6,7 +6,7 @@ const path = 'assets/audio';
 const tracks = {};
 let current = null;
 
-Howler.volume(0.75)
+Howler.volume(0);
 
 function pause() {
 	// todo fade out previous

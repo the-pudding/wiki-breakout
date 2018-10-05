@@ -4,6 +4,7 @@
 		.person
 			opacity 0.1
 			transition opacity 150ms ease-in-out
+
 		path.snake
 			&--inner
 				stroke none
@@ -35,24 +36,35 @@
 			align-items center
 			margin-left $thumb-size * 0.5
 			cursor pointer
-			// transition opacity 100ms ease-in-out
+			&.is-active
+				p.name
+					opacity 1
+				.thumbnail
+					filter grayscale(50%)
 		p.name
 			margin 0.5em
 			set-type-size(medium, false)
 			line-height 1.2
 			order 0
 			text-align right
+			opacity 0
+			text-shadow 0 0 5px white
+			font-weight 600
+			background rgba(white, 0.5)
+			border-radius 5px
+			padding 0 0.25em
 
 		.thumbnail
 			min-width $thumb-size
 			min-height $thumb-size
 			background $gray-light
 			border-radius 50%
-			border 10px solid $gray
+			border 1px solid $gray
 			background-repeat no-repeat
 			background-size cover
 			background-position 50% 0
-			filter grayscale(50%)
+			filter grayscale(100%)
+			box-shadow 0 0 6px 3px $bg
 		
 		.overlay
 			width 100%
@@ -64,7 +76,28 @@
 		.track
 			position absolute
 
-
+	.graphic__nametag
+		position fixed
+		left 0
+		top 50%
+		margin-top 0
+		z-index set-index(overlay)
+		// transition margin-top 100ms
+		li
+			set-type-size(x-small, false)
+			line-height 1
+			padding 0.25em 0.5em
+			opacity 0.5
+			cursor pointer
+			transition opacity 100ms ease-in-out
+			color green
+			&.is-rising
+				color red
+			&:hover
+				opacity 1
+			&.is-active
+				opacity 1
+				font-weight 600
 
 .test
 	z-index 10000
