@@ -71,10 +71,11 @@ function preloadImages(data) {
 }
 
 function handleNameClick(d) {
-	$p = $people.select(`[data-article="${d.article}"]`);
+	const $p = $people.select(`[data-article="${d.article}"]`);
+	const $i = $p.select('.info');
 	$person.classed('is-active', false);
 	$p.classed('is-active', true).raise();
-	const { top } = $p.node().getBoundingClientRect();
+	const { top } = $i.node().getBoundingClientRect();
 	const shift = top - halfH;
 	const curY = window.scrollY;
 	window.scrollTo(0, curY + shift);
@@ -154,15 +155,9 @@ function renderPerson(data) {
 	$infoEnter.append('p.name');
 	$infoEnter.append('div.thumbnail');
 
-	$visEnter
-		.append('path.snake--outer')
-		.at('d', d => d.svg.outer)
-		.st('stroke', 'url(#linear-gradient--outer)');
+	$visEnter.append('path.snake--outer').at('d', d => d.svg.outer);
 
-	$visEnter
-		.append('path.snake--inner')
-		.at('d', d => d.svg.inner)
-		.st('fill', 'url(#linear-gradient--inner)');
+	$visEnter.append('path.snake--inner').at('d', d => d.svg.inner);
 
 	$visEnter.append('path.spine').at('d', d => d.svg.spine);
 
@@ -191,8 +186,8 @@ function preRenderPerson() {
 function updateDimensions() {
 	personW = 256;
 	personH = 192;
-	margin.left = personW * 0.75;
-	margin.right = personW * 0.25;
+	margin.left = personW * 0.55;
+	margin.right = personW * 0.75;
 	margin.top = personH * 0.5;
 	margin.bottom = personH * 0.5;
 	windowH = window.innerHeight;
@@ -229,7 +224,7 @@ function resize() {
 		$p.st('top', y).st('left', x);
 		$p.select('.info')
 			.st('top', d.svg.start_y + svgMargin.top)
-			.st('max-width', margin.left);
+			.st('max-width', margin.left * 2);
 		const $svg = $p.select('svg');
 		$svg.at({
 			width: personW + svgMargin.left + svgMargin.right,
@@ -309,8 +304,6 @@ function updateNametag(el) {
 	$nametag.st('margin-top', shift + nameHeight * 0.5);
 }
 
-function updateVis(el) {}
-
 function updateInfo(el) {
 	const $p = d3.select(el);
 	$person.classed('is-active', false);
@@ -320,29 +313,32 @@ function updateInfo(el) {
 // lifted from enter-view
 function updateScroll() {
 	ticking = false;
-	const closest = { index: null, percent: -1 };
+	const closest = { index: null, fromMid: 9999 };
 	infoElements.forEach((el, i) => {
 		const { top } = el.getBoundingClientRect();
-		const fromMid = top - halfH;
-		const percent = 1 - Math.max(0, Math.abs(fromMid) / halfH);
-		if (percent > closest.percent) {
-			closest.percent = percent;
+		const fromMid = Math.abs(top - halfH);
+		const percent = Math.min(1, Math.max(0, fromMid / halfH));
+		const percentInverted = 1 - percent;
+		if (fromMid < closest.fromMid) {
+			closest.fromMid = fromMid;
 			closest.index = i;
 		}
 
-		const opacity = percent > 0.8 ? 1 : percent * percent;
+		const opacity = Math.min(0.8, percentInverted * percentInverted);
 
 		const $el = d3.select(personElements[i]);
 		$el.st({ opacity });
 		// if (opacity === 1) $el.raise();
 	});
+
+	const el = personElements[closest.index];
+
 	if (currentNametagIndex !== closest.index) {
 		currentNametagIndex = closest.index;
-		const el = personElements[closest.index];
 		updateNametag(el);
-		updateVis(el);
 		updateInfo(el);
 	}
+	d3.select(el).st('opacity', 1);
 
 	tracks.forEach(t => {
 		const { top } = t.el.getBoundingClientRect();
@@ -429,8 +425,8 @@ function setupGradient() {
 			.at('offset', percent)
 			.at('stop-color', () => {
 				const c = d3.color(COLORS[i]);
-				const dark = c.darker(0.33);
-				return dark.toString();
+				const diff = c.brighter(0.75);
+				return diff.toString();
 			})
 			.at('stop-opacity', 1);
 	});

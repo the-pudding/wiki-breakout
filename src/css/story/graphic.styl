@@ -11,14 +11,15 @@
 		svg
 			display block
 			transition opacity 150ms ease-in-out
-			opacity 0.1
+			opacity 1
 		path.snake
 			&--inner
 				stroke none
+				fill lighten($bg, 4)
 			&--outer
 				fill none
 				stroke-width 2px
-				stroke $gray
+				stroke darken($bg, 4)
 				stroke-linecap round
 				stroke-linejoin round
 				
@@ -74,19 +75,27 @@
 			p.name
 				opacity 1
 				transform translate($thumb-size * 0.25, $thumb-size * -0.25)
-			.thumbnail
-				filter grayscale(50%)
+			// .thumbnail
+			// 	filter grayscale(50%)
 			svg
 				opacity 1
+				.snake--inner
+					fill url('#linear-gradient--inner')
+				.snake--outer
+					stroke url('#linear-gradient--outer')
 		&.is-active
 			p.name
 				opacity 1
 				transform translate(0,0)
 			.thumbnail
-				filter grayscale(50%)
+				// filter grayscale(50%)
 				transform scale(1)
 			svg
 				opacity 1
+				.snake--inner
+					fill url('#linear-gradient--inner')
+				.snake--outer
+					stroke url('#linear-gradient--outer')
 		
 		.track
 			position absolute
@@ -94,7 +103,7 @@
 	
 	.graphic__nametag
 		position fixed
-		left 0
+		right 0
 		top 50%
 		margin-top 0
 		z-index set-index(overlay)
@@ -103,11 +112,12 @@
 			set-type-size(x-small, false)
 			line-height 1
 			padding 0.25em 0.5em
-			opacity 0.5
+			opacity 0.33
 			cursor pointer
 			transition opacity 100ms ease-in-out
 			color $red
 			font-weight 400
+			text-align right
 			&.is-rising
 				color $yellow
 			&:hover
@@ -115,7 +125,6 @@
 			&.is-active
 				opacity 1
 				font-weight 600
-
 
 
 
