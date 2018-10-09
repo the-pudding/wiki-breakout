@@ -2,6 +2,7 @@
 import Audio from './audio';
 import loadImage from './utils/load-image';
 import tracks from './tracks.json';
+import above from './above.json';
 
 let ticking = false;
 let mobile = false;
@@ -11,12 +12,13 @@ let personW = 0;
 let personH = 0;
 let windowH = 0;
 let halfH = 0;
-let personElH = 0;
+let infoElH = 0;
 let joinedData = [];
 let currentNametagIndex = -1;
 let nameHeight = 0;
 
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+const svgMargin = { top: 20, right: 20, bottom: 20, left: 20 };
 const BP = 600;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
@@ -40,19 +42,17 @@ const scale = {
 };
 
 const $section = d3.select('#graphic');
-const $svg = $section.select('.graphic__svg');
-const $info = $section.select('.graphic__info');
+const $people = $section.select('.graphic__people');
+const $tracks = $section.select('.graphic__tracks');
 const $nametag = $section.select('.graphic__nametag');
-const $vis = $svg.select('.g-vis');
-const $axis = $svg.select('.g-axis');
 
-let $visPerson = null;
-let $infoPerson = null;
-let $nametagName = null;
+let $person = $people.selectAll('.person'); // empty to start
+let $nametagName = $nametag.selectAll('.name');
 
 const imageSet = new Set();
 
 let personElements = [];
+let infoElements = [];
 const trackElements = [];
 
 function preloadImages(data) {
@@ -71,29 +71,31 @@ function preloadImages(data) {
 }
 
 function handleNameClick(d) {
-	const $person = $info.select(`[data-article="${d.article}"]`);
-	$infoPerson.classed('is-active', false);
-	$person.classed('is-active', true).raise();
-	const { top } = $person.node().getBoundingClientRect();
+	$p = $people.select(`[data-article="${d.article}"]`);
+	$person.classed('is-active', false);
+	$p.classed('is-active', true).raise();
+	const { top } = $p.node().getBoundingClientRect();
 	const shift = top - halfH;
 	const curY = window.scrollY;
 	window.scrollTo(0, curY + shift);
 }
 
 function handlePersonEnter({ article }) {
-	$vis.select(`[data-article="${article}"]`).st('opacity', 1);
-	const $person = d3.select(this);
-	
-	$person.classed('is-hover', true)
-		.at('data-opacity', $person.st('opacity'))
-		.st('opacity', 1);
+	$people.select(`[data-article="${article}"]`).st('opacity', 1);
+	const $p = d3.select(this).parent();
+
+	$p.classed('is-hover', true)
+		.at('data-opacity', $p.st('opacity'))
+		.st('opacity', 1)
+		.raise();
 }
 
 function handlePersonExit({ article }) {
-	$vis.select(`[data-article="${article}"]`).st('opacity', 0.1);
-	const $person = d3.select(this);
-	$person.classed('is-hover', false)
-		.st('opacity', +$person.at('data-opacity'));
+	$people.select(`[data-article="${article}"]`).st('opacity', 0.1);
+	const $p = d3.select(this).parent();
+	$p.classed('is-hover', false)
+		.st('opacity', +$p.at('data-opacity'))
+		.lower();
 }
 
 function translatePerson(d) {
@@ -104,8 +106,7 @@ function translatePerson(d) {
 }
 
 function renderTracks() {
-	const $trackEnter = $info
-		.select('.info__track')
+	const $trackEnter = $tracks
 		.selectAll('.track')
 		.data(tracks)
 		.enter()
@@ -135,50 +136,56 @@ function renderNametag(data) {
 	$nametagName = $nameEnter.merge($name);
 }
 
-function renderInfo(data) {
-	const $person = $info
-		.select('.info__person')
-		.selectAll('.person')
-		.data(data, d => d.article);
+function renderPerson(data) {
+	$person = $people.selectAll('.person').data(data, d => d.article);
 
 	const $personEnter = $person.enter().append('div.person');
+	const $infoEnter = $personEnter.append('div.info');
+	const $svgEnter = $personEnter.append('svg');
+	$svgEnter.append('g.g-axis');
+	const $visEnter = $svgEnter.append('g.g-vis');
 
 	$personEnter.at('data-article', d => d.article);
 
-	$personEnter.append('p.name').text(d => d.display);
-	$personEnter
-		.append('div.thumbnail')
-		.st('background-image', d => `url(${d.thumbnail_source})`);
-
-	$personEnter
+	$infoEnter
 		.on('mouseenter', handlePersonEnter)
 		.on('mouseleave', handlePersonExit);
 
-	$infoPerson = $personEnter.merge($person);
+	$infoEnter.append('p.name');
+	$infoEnter.append('div.thumbnail');
 
-	personElements = $personEnter.nodes();
-	personElH = personElements[0].offsetHeight;
+	$visEnter
+		.append('path.snake--outer')
+		.at('d', d => d.svg.outer)
+		.st('stroke', 'url(#linear-gradient--outer)');
+
+	$visEnter
+		.append('path.snake--inner')
+		.at('d', d => d.svg.inner)
+		.st('fill', 'url(#linear-gradient--inner)');
+
+	$visEnter.append('path.spine').at('d', d => d.svg.spine);
+
+	$person = $personEnter.merge($person);
+
+	personElements = $person.nodes();
+	infoElements = $person.select('.info').nodes();
+	infoElH = infoElements[0].offsetHeight;
+
+	$person.select('.name').text(d => d.display);
+	$person
+		.select('.thumbnail')
+		.st('background-image', d => `url(${d.thumbnail_source})`);
 }
 
-function renderPerson(data) {
-	const $person = $vis.selectAll('.person').data(data, d => d.article);
-	const $personEnter = $person.enter().append('g.person');
-
-	$personEnter.at('data-article', d => d.article);
-
-	$personEnter.append('path.snake--outer').at('d', d => d.svg.outer);
-	$personEnter.append('path.snake--inner').at('d', d => d.svg.inner);
-
-	$personEnter.append('path.spine').at('d', d => d.svg.spine);
-	$personEnter.translate(translatePerson);
-
-	$visPerson = $personEnter.merge($person);
-
-	$visPerson.order();
-	$visPerson.select('.snake--inner').st('fill', 'url(#linear-gradient--inner)');
-	$visPerson
-		.select('.snake--outer')
-		.st('stroke', 'url(#linear-gradient--outer)');
+function preRenderPerson() {
+	const data = Object.keys(above)
+		.map(d => above[d])
+		.map(d => ({
+			article: d.id,
+			svg: d
+		}));
+	renderPerson(data);
 }
 
 function updateDimensions() {
@@ -189,7 +196,7 @@ function updateDimensions() {
 	margin.top = personH * 0.5;
 	margin.bottom = personH * 0.5;
 	windowH = window.innerHeight;
-	halfH = Math.floor(windowH / 2) - personElH / 2;
+	halfH = Math.floor(windowH / 2) - infoElH / 2;
 	width = $section.node().offsetWidth - margin.left - margin.right;
 	height = windowH * 9 - margin.top - margin.bottom;
 	mobile = width < BP;
@@ -197,17 +204,16 @@ function updateDimensions() {
 
 function resize() {
 	updateDimensions();
-	const w = width + margin.left + margin.right;
-	const h = height + margin.top + margin.bottom;
+	// const w = width + margin.left + margin.right;
+	// const h = height + margin.top + margin.bottom;
 
-	$svg.at({ width: w, height: h });
-	$info.st({ width, height, top: margin.top, left: margin.left });
+	$people.st({ width, height, top: margin.top, left: margin.left });
 
-	$vis.translate([margin.left, margin.top]);
+	// $vis.translate([margin.left, margin.top]);
 	scale.gridX.range([margin.left, width - margin.right]);
 	scale.gridY.range([margin.top, height - margin.bottom]);
 
-	$info.selectAll('.track').each((d, i, n) => {
+	$people.selectAll('.track').each((d, i, n) => {
 		const $el = d3.select(n[i]);
 		const x = -margin.left;
 		const y = scale.gridY(d.trigger) - margin.top;
@@ -217,23 +223,31 @@ function resize() {
 	scale.snakeX.range([0, personW]);
 	scale.snakeY.range([personH, 0]);
 
-	$visPerson.translate(translatePerson);
-
-	if (joinedData.length) {
-		$infoPerson.each((d, i, n) => {
-			const [x, y] = translatePerson(d);
-			const $el = d3.select(n[i]);
-			$el.st('top', y + d.svg.start_y).st('left', x);
-			$el.select('.name').st('max-width', margin.left + margin.right);
+	$person.each((d, i, n) => {
+		const [x, y] = translatePerson(d);
+		const $p = d3.select(n[i]);
+		$p.st('top', y).st('left', x);
+		$p.select('.info')
+			.st('top', d.svg.start_y + svgMargin.top)
+			.st('max-width', margin.left);
+		const $svg = $p.select('svg');
+		$svg.at({
+			width: personW + svgMargin.left + svgMargin.right,
+			height: personH + svgMargin.top + svgMargin.bottom
 		});
-
-		const cardi = joinedData.find(d => d.article === 'Cardi_B');
-		const [cX, cY] = translatePerson(cardi);
-		$axis.translate([cX + margin.left, cY + margin.top]);
+		$svg.select('.g-vis').translate([svgMargin.left, svgMargin.top]);
+		const $axis = $svg.select('.g-axis');
+		$axis.translate([svgMargin.left, svgMargin.top]);
 		$axis.select('.axis--x').translate([0, personH]);
+	});
+
+	$person
+		.select('.axis')
+		.select('.axis--x')
+		.translate([0, personH]);
+
+	if ($nametagName.size())
 		nameHeight = $nametag.select('.name').node().offsetHeight;
-		// $axis.select('.axis--y').translate([personW, 0]);
-	}
 }
 
 function cleanDisplay(str) {
@@ -285,8 +299,8 @@ function preBindData() {
 }
 
 function updateNametag(el) {
-	const $person = d3.select(el);
-	const article = $person.at('data-article');
+	const $p = d3.select(el);
+	const article = $p.at('data-article');
 	const $name = $nametag.select(`[data-article="${article}"`);
 	$nametag.selectAll('.name').classed('is-active', false);
 	$name.classed('is-active', true);
@@ -298,16 +312,16 @@ function updateNametag(el) {
 function updateVis(el) {}
 
 function updateInfo(el) {
-	const $person = d3.select(el);
-	$infoPerson.classed('is-active', false);
-	$person.classed('is-active', true).raise();
+	const $p = d3.select(el);
+	$person.classed('is-active', false);
+	$p.classed('is-active', true).raise();
 }
 
 // lifted from enter-view
 function updateScroll() {
 	ticking = false;
 	const closest = { index: null, percent: -1 };
-	personElements.forEach((el, i) => {
+	infoElements.forEach((el, i) => {
 		const { top } = el.getBoundingClientRect();
 		const fromMid = top - halfH;
 		const percent = 1 - Math.max(0, Math.abs(fromMid) / halfH);
@@ -318,7 +332,7 @@ function updateScroll() {
 
 		const opacity = percent > 0.8 ? 1 : percent * percent;
 
-		const $el = d3.select(el);
+		const $el = d3.select(personElements[i]);
 		$el.st({ opacity });
 		// if (opacity === 1) $el.raise();
 	});
@@ -426,16 +440,13 @@ function setupAxis() {
 	// just make one around Cardi B
 	const axisX = d3.axisBottom(scale.snakeX).tickSize(-personH);
 	const axisY = d3.axisLeft(scale.snakeY).tickSize(-personW);
+	const cardi = $person.filter(d => d.article === 'Cardi_B');
+	const $axis = cardi.select('.g-axis');
 	$axis.append('g.axis--x').call(axisX);
 	$axis.append('g.axis--y').call(axisY);
 }
 
-function init() {
-	preBindData();
-	updateDimensions();
-	resize();
-	setupGradient();
-
+function loadData() {
 	d3.loadData(
 		'assets/data/people-info.csv',
 		'assets/data/people-svg	.json',
@@ -446,7 +457,6 @@ function init() {
 				Audio.init();
 				joinedData = joinData(response);
 				renderPerson(joinedData);
-				renderInfo(joinedData);
 				renderNametag(joinedData);
 				renderTracks();
 				setupAxis();
@@ -458,6 +468,15 @@ function init() {
 			}
 		}
 	);
+}
+
+function init() {
+	updateDimensions();
+	resize();
+	setupGradient();
+	preRenderPerson();
+	loadData();
+	resize();
 }
 
 export default { init, resize };

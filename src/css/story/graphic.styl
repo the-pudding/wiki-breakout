@@ -1,10 +1,17 @@
 #graphic
 	position relative
-	.graphic__svg
-		.person
-			opacity 0.1
-			transition opacity 150ms ease-in-out
+	
+	.graphic__people
+		position absolute
 
+	.person
+		position absolute
+
+		// SVG
+		svg
+			display block
+			transition opacity 150ms ease-in-out
+			opacity 0.1
 		path.snake
 			&--inner
 				stroke none
@@ -25,70 +32,66 @@
 				stroke-dasharray 2px 2px
 				stroke $gray
 				stroke-width 0.5px
-		
 
-	.graphic__info
-		position absolute
-		.person
+		// INFO
+		.info
 			position absolute
-			display flex
-			transform translate(-100%, 0.5rem)
-			align-items center
-			margin-left $thumb-size * 0.5
-			cursor pointer
-			&.is-hover
-				p.name
-					opacity 1
-					transform translate($thumb-size * 0.25, $thumb-size * -0.25)
-				.thumbnail
-					filter grayscale(50%)
-			&.is-active
-				p.name
-					opacity 1
-					transform translate(0,0)
-				.thumbnail
-					filter grayscale(50%)
-					transform scale(1)
-			
-
-					
-		p.name
-			margin 0.5em
-			set-type-size(medium, false)
-			line-height 1.2
-			order 0
-			text-align right
-			opacity 0
-			text-shadow 0 0 5px $bg
-			font-weight 600
-			background rgba($bg, 0.75)
-			border-radius 5px
-			padding 0 0.25em
-
-		.thumbnail
-			min-width $thumb-size
-			min-height $thumb-size
-			background $yellow
-			border-radius 50%
-			border 1px solid $yellow
-			background-repeat no-repeat
-			background-size cover
-			background-position 50% 0
-			filter grayscale(100%)
-			box-shadow 0 0 6px 3px $bg
-			transform scale(0.5) translateY(-50%)
-			transition transform 250ms ease-in-out
-		
-		.overlay
 			width 100%
-			height 100%
-			position absolute
-			background $bg
-		
+			right 100%
+			display flex
+			align-items center
+			cursor pointer
+			p.name
+				width 100%
+				margin 0.5em
+				set-type-size(medium, false)
+				line-height 1.2
+				order 0
+				text-align right
+				opacity 0
+				text-shadow 0 0 5px $bg
+				font-weight 600
+				background-color rgba($bg, 0.75)
+				border-radius 5px
+				padding 0 0.25em
 
+			.thumbnail
+				min-width $thumb-size
+				min-height $thumb-size
+				background $bg
+				border-radius 50%
+				border 1px solid $bg
+				background-color $gray
+				background-repeat no-repeat
+				background-size cover
+				background-position 50% 0
+				filter grayscale(100%)
+				box-shadow 0 0 6px 3px $bg
+				transform scale(0.5) translateY(-50%)
+				transition transform 250ms ease-in-out
+
+		&.is-hover
+			p.name
+				opacity 1
+				transform translate($thumb-size * 0.25, $thumb-size * -0.25)
+			.thumbnail
+				filter grayscale(50%)
+			svg
+				opacity 1
+		&.is-active
+			p.name
+				opacity 1
+				transform translate(0,0)
+			.thumbnail
+				filter grayscale(50%)
+				transform scale(1)
+			svg
+				opacity 1
+		
 		.track
 			position absolute
 
+	
 	.graphic__nametag
 		position fixed
 		left 0
@@ -103,14 +106,19 @@
 			opacity 0.5
 			cursor pointer
 			transition opacity 100ms ease-in-out
-			color green
+			color $red
+			font-weight 400
 			&.is-rising
-				color red
+				color $yellow
 			&:hover
 				opacity 1
 			&.is-active
 				opacity 1
 				font-weight 600
+
+
+
+
 
 .test
 	z-index 10000
