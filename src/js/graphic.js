@@ -18,7 +18,7 @@ let currentNametagIndex = -1;
 let nameHeight = 0;
 
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-const svgMargin = { top: 20, right: 20, bottom: 20, left: 20 };
+const svgMargin = { top: 24, right: 32, bottom: 24, left: 48 };
 const BP = 600;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
@@ -434,12 +434,32 @@ function setupGradient() {
 
 function setupAxis() {
 	// just make one around Cardi B
-	const axisX = d3.axisBottom(scale.snakeX).tickSize(-personH);
-	const axisY = d3.axisLeft(scale.snakeY).tickSize(-personW);
+	const axisX = d3
+		.axisBottom(scale.snakeX)
+		.tickSize(-personH)
+		.tickPadding(8)
+		.tickFormat((val, i) => {
+			const suffix = val === 35 ? ' months' : '';
+			return `${val}${suffix}`;
+		});
+	const axisY = d3
+		.axisLeft(scale.snakeY)
+		.tickSize(-personW)
+		.tickPadding(8)
+		.tickFormat((val, i) => {
+			const suffix = i === 8 ? '' : '';
+			return `${d3.format(',')(LEVELS[i])}${suffix}`;
+		});
 	const cardi = $person.filter(d => d.article === 'Cardi_B');
 	const $axis = cardi.select('.g-axis');
 	$axis.append('g.axis--x').call(axisX);
 	$axis.append('g.axis--y').call(axisY);
+
+	const $tickText = $axis.select('.axis--x').selectAll('.tick text');
+	const numTicks = $tickText.size() - 1;
+	$tickText
+		.at('text-anchor', (d, i) => (i === numTicks ? 'start' : 'middle'))
+		.at('x', (d, i) => (i === numTicks ? -8 : 0));
 }
 
 function loadData() {

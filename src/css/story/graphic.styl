@@ -12,6 +12,10 @@
 			display block
 			transition opacity 150ms ease-in-out
 			opacity 1
+		text
+			fill $fg
+			font-family $sans
+			font-size 12px
 		path.snake
 			&--inner
 				stroke none
@@ -31,8 +35,14 @@
 				display none
 			line
 				stroke-dasharray 2px 2px
-				stroke $gray
+				stroke lighten($bg, 20)
 				stroke-width 0.5px
+			.axis--x
+				.tick:nth-child(2)
+					display none
+			.axis--y
+				.tick:nth-child(2),.tick:nth-child(11)
+					display none
 
 		// INFO
 		.info
@@ -42,6 +52,7 @@
 			display flex
 			align-items center
 			cursor pointer
+			transform translateX(2rem)
 			p.name
 				width 100%
 				margin 0.5em
@@ -66,15 +77,15 @@
 				background-repeat no-repeat
 				background-size cover
 				background-position 50% 0
-				filter grayscale(100%)
+				filter grayscale(50%)
 				box-shadow 0 0 6px 3px $bg
-				transform scale(0.5) translateY(-50%)
+				transform scale(0.5) translate(50%, -50%)
 				transition transform 250ms ease-in-out
 
 		&.is-hover
 			p.name
 				opacity 1
-				transform translate($thumb-size * 0.25, $thumb-size * -0.25)
+				transform translate($thumb-size * 0.5, $thumb-size * -0.25)
 			// .thumbnail
 			// 	filter grayscale(50%)
 			svg
@@ -88,8 +99,10 @@
 				opacity 1
 				transform translate(0,0)
 			.thumbnail
-				// filter grayscale(50%)
-				transform scale(1)
+				transition transform 250ms ease-in-out
+				transform scale(1) translate(0, 0)
+				box-shadow 0 0 3px 3px $fg
+				border-color $fg
 			svg
 				opacity 1
 				.snake--inner
