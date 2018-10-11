@@ -21,8 +21,9 @@ function pause() {
 
 function progress() {
 	if (tracks[current.id].playing() && progressCallback) {
-		const time = tracks[current.id].duration() - tracks[current.id].seek();
-		progressCallback({ id: current.id, time });
+		const duration = tracks[current.id].duration();
+		const seek = tracks[current.id].seek();
+		progressCallback({ id: current.id, duration, seek });
 	}
 	timer = d3.timeout(progress, 250);
 }
@@ -48,7 +49,7 @@ function load(cb) {
 			src: `${path}/${f}.mp3`,
 			onload: () => {
 				tracks[f] = t;
-				cb({ id: f, time: t.duration() });
+				cb({ id: f, duration: t.duration(), seek: 0 });
 				if (current && current.id === f) play({ t: current });
 				advance();
 			},

@@ -1,4 +1,5 @@
 /* global d3 */
+import 'stickyfilljs';
 import Audio from './audio';
 import loadImage from './utils/load-image';
 import tracks from './tracks.json';
@@ -38,7 +39,8 @@ const scale = {
 	snakeX: d3.scaleLinear().domain([0, 39]),
 	snakeY: d3.scaleLinear().domain([0, 9]),
 	gridX: d3.scaleLinear(),
-	gridY: d3.scaleLinear()
+	gridY: d3.scaleLinear(),
+	time: d3.scaleQuantize().range(COLORS.map(d => d).reverse())
 };
 
 const $section = d3.select('#graphic');
@@ -336,9 +338,13 @@ function updateInfo(el) {
 	$p.classed('is-active', true).raise();
 }
 
-function handleAudioProgress({ id, time }) {
-	const seconds = zeroPad(Math.round(time));
-	$tracks.select(`[data-id='${id}'] .timer`).text(`:${seconds}`);
+function handleAudioProgress({ id, duration, seek }) {
+	scale.time.domain([0, Math.ceil(duration)]);
+	const seconds = zeroPad(Math.round(duration - seek));
+	$tracks
+		.select(`[data-id='${id}'] .timer`)
+		.text(`:${seconds}`)
+		.st('background-color', scale.time(seconds));
 }
 
 // lifted from enter-view
@@ -502,7 +508,7 @@ function setupAxis() {
 
 	const $tickTextY = $axis.select('.axis--y').selectAll('.tick text');
 	const numTicksY = $tickTextY.size() - 2;
-	$tickTextY.at('x', (d, i) => (i === numTicksY ? 36 : 0));
+	$tickTextY.at('x', (d, i) => (i === numTicksY ? 44 : 0));
 }
 
 function loadData() {
