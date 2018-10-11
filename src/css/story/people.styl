@@ -1,0 +1,114 @@
+#graphic .graphic__people
+	position absolute
+
+	.person
+		position absolute
+		pointer-events none
+		// SVG
+		svg
+			display block
+			transition opacity 150ms ease-in-out
+			opacity 1
+			pointer-events none
+		text
+			fill $fg
+			font-family $sans
+			font-size 12px
+			font-weight 500
+		path.snake
+			&--inner
+				stroke none
+				fill lighten($bg, 4)
+			&--outer
+				fill none
+				stroke-width 2px
+				stroke darken($bg, 4)
+				stroke-linecap round
+				stroke-linejoin round
+				
+		path.spine
+			fill none
+		
+		.g-axis
+			path
+				display none
+			line
+				stroke-dasharray 2px 2px
+				stroke lighten($bg, 20)
+				stroke-width 0.5px
+			.axis--x
+				.tick:nth-child(2)
+					display none
+			.axis--y
+				.tick:nth-child(2),.tick:nth-child(11)
+					display none
+
+	// INFO
+	.info
+		position absolute
+		width 100%
+		right 100%
+		display flex
+		align-items center
+		justify-content flex-end
+		cursor pointer
+		transform translateX(2.5rem)
+		p.name
+			margin 0.5em
+			set-type-size(medium, false)
+			line-height 1.2
+			order 0
+			text-align right
+			opacity 0
+			text-shadow 0 0 5px $bg
+			font-weight 600
+			background-color rgba($bg, 0.75)
+			border-radius 5px
+			padding 0 0.25em
+
+		.thumbnail
+			min-width $thumb-size
+			min-height $thumb-size
+			background $bg
+			border-radius 50%
+			border 1px solid $bg
+			background-color $gray
+			background-repeat no-repeat
+			background-size cover
+			background-position 50% 0
+			filter grayscale(50%)
+			box-shadow 0 0 6px 3px $bg
+			transform scale(0.5) translate(50%, -50%)
+			transition transform 250ms ease-in-out
+			pointer-events auto
+
+	
+	.person.is-hover
+		p.name
+			opacity 1
+			transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+		// .thumbnail
+		// 	filter grayscale(50%)
+		svg
+			opacity 1
+			.snake--inner
+				fill url('#linear-gradient--inner')
+			.snake--outer
+				stroke url('#linear-gradient--outer')
+	
+	.person.is-active
+		p.name
+			opacity 1
+			transform translate(0,0)
+		.thumbnail
+			transition transform 250ms ease-in-out
+			transform scale(1) translate(0, 0)
+			box-shadow 0 0 3px 3px $fg
+			border-color $fg
+		svg
+			opacity 1
+			.snake--inner
+				fill url('#linear-gradient--inner')
+			.snake--outer
+				stroke url('#linear-gradient--outer')
+

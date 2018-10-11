@@ -5,8 +5,10 @@ const FADE_OUT = 500;
 const path = 'assets/audio';
 const tracks = {};
 let current = null;
+let progressCallback = null;
+let timer = null;
 
-Howler.volume(0);
+Howler.volume(0.75);
 
 function pause() {
 	// todo fade out previous
@@ -17,18 +19,27 @@ function pause() {
 	}
 }
 
-function play(t) {
+function progress() {
+	if (tracks[current.id].playing() && progressCallback) {
+		const time = tracks[current.id].duration() - tracks[current.id].seek();
+		progressCallback({ id: current.id, time });
+	}
+	timer = d3.timeout(progress, 250);
+}
+
+function play({ t, cb }) {
+	progressCallback = cb;
 	if (current && current.id !== t.id) pause();
 	current = t;
 	if (tracks[t.id] && !tracks[t.id].playing()) {
 		tracks[t.id].play();
 		tracks[t.id].volume(1);
 		d3.select(t.el).st('color', 'red');
-		// todo progress indicator
+		timer = d3.timeout(progress, 250);
 	}
 }
 
-function load() {
+function load(cb) {
 	let i = 0;
 
 	const loadNext = () => {
@@ -37,7 +48,8 @@ function load() {
 			src: `${path}/${f}.mp3`,
 			onload: () => {
 				tracks[f] = t;
-				if (current && current.id === f) play(current);
+				cb({ id: f, time: t.duration() });
+				if (current && current.id === f) play({ t: current });
 				advance();
 			},
 			onloaderror: advance,
@@ -55,8 +67,8 @@ function load() {
 	loadNext();
 }
 
-function init() {
-	load();
+function init(cb) {
+	load(cb);
 }
 
 export default { init, play };

@@ -1,0 +1,26 @@
+#graphic .graphic__nametag
+	position fixed
+	right 0
+	top 50%
+	margin-top 0
+	z-index set-index(top)
+	// transition margin-top 100ms
+	li
+		set-type-size(x-small, false)
+		line-height 1
+		padding 0.25em 0.5em
+		opacity 0.33
+		cursor pointer
+		transition opacity 100ms ease-in-out
+		color $red
+		font-weight 400
+		text-align right
+		&.is-rising
+			color $yellow
+		&:hover
+			opacity 1
+		&.is-active
+			opacity 1
+			font-weight 600
+
+

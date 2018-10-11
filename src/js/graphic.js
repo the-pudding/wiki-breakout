@@ -53,7 +53,10 @@ const imageSet = new Set();
 
 let personElements = [];
 let infoElements = [];
-const trackElements = [];
+
+function zeroPad(number) {
+	return d3.format('02')(number);
+}
 
 function preloadImages(data) {
 	let i = 0;
@@ -83,20 +86,38 @@ function handleNameClick(d) {
 
 function handlePersonEnter({ article }) {
 	$people.select(`[data-article="${article}"]`).st('opacity', 1);
-	const $p = d3.select(this).parent();
+	const $p = d3
+		.select(this)
+		.parent()
+		.parent();
 
-	$p.classed('is-hover', true)
+	const datum = $p.datum();
+	datum.z_index = 1001;
+
+	$p.datum(datum)
+		.classed('is-hover', true)
 		.at('data-opacity', $p.st('opacity'))
 		.st('opacity', 1)
-		.raise();
+		.st('z-index', d => d.z_index)
+		.datum(datum);
+
+	// TODO
 }
 
 function handlePersonExit({ article }) {
 	$people.select(`[data-article="${article}"]`).st('opacity', 0.1);
-	const $p = d3.select(this).parent();
+	const $p = d3
+		.select(this)
+		.parent()
+		.parent();
+
+	const active = $p.classed('is-active');
+	const datum = $p.datum();
+	datum.z_index = active ? 1000 : datum.sort_val;
+
 	$p.classed('is-hover', false)
 		.st('opacity', +$p.at('data-opacity'))
-		.lower();
+		.st('z-index', d => d.z_index);
 }
 
 function translatePerson(d) {
@@ -111,8 +132,9 @@ function renderTracks() {
 		.selectAll('.track')
 		.data(tracks)
 		.enter()
-		.append('div.track');
-	$trackEnter.append('p').text(d => d.id);
+		.append('div.track')
+		.at('data-id', d => d.id);
+	$trackEnter.append('p.timer');
 
 	$trackEnter.each((d, i, n) => {
 		tracks[i].el = n[i];
@@ -146,14 +168,14 @@ function renderPerson(data) {
 	$svgEnter.append('g.g-axis');
 	const $visEnter = $svgEnter.append('g.g-vis');
 
-	$personEnter.at('data-article', d => d.article);
-
-	$infoEnter
-		.on('mouseenter', handlePersonEnter)
-		.on('mouseleave', handlePersonExit);
+	$personEnter.at('data-article', d => d.article).st('z-index', d => d.z_index);
 
 	$infoEnter.append('p.name');
-	$infoEnter.append('div.thumbnail');
+
+	$infoEnter
+		.append('div.thumbnail')
+		.on('mouseenter', handlePersonEnter)
+		.on('mouseleave', handlePersonExit);
 
 	$visEnter.append('path.snake--outer').at('d', d => d.svg.outer);
 
@@ -203,16 +225,18 @@ function resize() {
 	// const h = height + margin.top + margin.bottom;
 
 	$people.st({ width, height, top: margin.top, left: margin.left });
+	$tracks.st({ width: margin.left, height, top: margin.top });
 
 	// $vis.translate([margin.left, margin.top]);
 	scale.gridX.range([margin.left, width - margin.right]);
 	scale.gridY.range([margin.top, height - margin.bottom]);
 
-	$people.selectAll('.track').each((d, i, n) => {
+	$tracks.selectAll('.track').each((d, i, n) => {
 		const $el = d3.select(n[i]);
-		const x = -margin.left;
-		const y = scale.gridY(d.trigger) - margin.top;
-		$el.st('top', y).st('left', x);
+		const top = scale.gridY(d.start);
+		const h = scale.gridY(d.end) - top;
+
+		$el.st({ top, height: h });
 	});
 
 	scale.snakeX.range([0, personW]);
@@ -261,6 +285,8 @@ function joinData(data) {
 		}))
 		.map(d => ({
 			...d,
+			sort_val: Math.round(+d.svg.y * 1000),
+			z_index: Math.round(+d.svg.y * 1000),
 			svg: {
 				...d.svg,
 				start_y: +d.svg.start_y,
@@ -268,7 +294,7 @@ function joinData(data) {
 				y: +d.svg.y
 			}
 		}));
-	joined.sort((a, b) => d3.descending(a.svg.y, b.svg.y));
+	joined.sort((a, b) => d3.descending(a.sort_val, b.sort_val));
 	return joined;
 }
 
@@ -310,6 +336,11 @@ function updateInfo(el) {
 	$p.classed('is-active', true).raise();
 }
 
+function handleAudioProgress({ id, time }) {
+	const seconds = zeroPad(Math.round(time));
+	$tracks.select(`[data-id='${id}'] .timer`).text(`:${seconds}`);
+}
+
 // lifted from enter-view
 function updateScroll() {
 	ticking = false;
@@ -332,13 +363,21 @@ function updateScroll() {
 	});
 
 	const el = personElements[closest.index];
+	const $p = d3.select(el);
 
 	if (currentNametagIndex !== closest.index) {
 		currentNametagIndex = closest.index;
 		updateNametag(el);
 		updateInfo(el);
 	}
-	d3.select(el).st('opacity', 1);
+
+	const datum = $p.datum();
+	datum.z_index = 1000;
+
+	d3.select(el)
+		.datum(datum)
+		.st('opacity', 1)
+		.st('z-index', d => d.z_index);
 
 	tracks.forEach(t => {
 		const { top } = t.el.getBoundingClientRect();
@@ -352,7 +391,7 @@ function updateScroll() {
 		d3.descending(Math.abs(a.curMid), Math.abs(b.curMid))
 	);
 	const trackToPlay = filteredTracks.pop();
-	if (trackToPlay) Audio.play(trackToPlay);
+	if (trackToPlay) Audio.play({ t: trackToPlay, cb: handleAudioProgress });
 }
 
 function onScroll() {
@@ -447,7 +486,7 @@ function setupAxis() {
 		.tickSize(-personW)
 		.tickPadding(8)
 		.tickFormat((val, i) => {
-			const suffix = i === 8 ? '' : '';
+			const suffix = i === 8 ? ' views' : '';
 			return `${d3.format(',')(LEVELS[i])}${suffix}`;
 		});
 	const cardi = $person.filter(d => d.article === 'Cardi_B');
@@ -455,11 +494,15 @@ function setupAxis() {
 	$axis.append('g.axis--x').call(axisX);
 	$axis.append('g.axis--y').call(axisY);
 
-	const $tickText = $axis.select('.axis--x').selectAll('.tick text');
-	const numTicks = $tickText.size() - 1;
-	$tickText
-		.at('text-anchor', (d, i) => (i === numTicks ? 'start' : 'middle'))
-		.at('x', (d, i) => (i === numTicks ? -8 : 0));
+	const $tickTextX = $axis.select('.axis--x').selectAll('.tick text');
+	const numTicksX = $tickTextX.size() - 1;
+	$tickTextX
+		.at('text-anchor', (d, i) => (i === numTicksX ? 'start' : 'middle'))
+		.at('x', (d, i) => (i === numTicksX ? -8 : 0));
+
+	const $tickTextY = $axis.select('.axis--y').selectAll('.tick text');
+	const numTicksY = $tickTextY.size() - 2;
+	$tickTextY.at('x', (d, i) => (i === numTicksY ? 36 : 0));
 }
 
 function loadData() {
@@ -470,7 +513,7 @@ function loadData() {
 		(err, response) => {
 			if (err) console.log(err);
 			else {
-				Audio.init();
+				Audio.init(handleAudioProgress);
 				joinedData = joinData(response);
 				renderPerson(joinedData);
 				renderNametag(joinedData);
