@@ -47,6 +47,8 @@ const $section = d3.select('#graphic');
 const $people = $section.select('.graphic__people');
 const $tracks = $section.select('.graphic__tracks');
 const $nametag = $section.select('.graphic__nametag');
+const $grid = $section.select('.graphic__grid')
+const $legend = $section.select('.graphic__legend')
 
 let $person = $people.selectAll('.person'); // empty to start
 let $nametagName = $nametag.selectAll('.name');
@@ -269,6 +271,7 @@ function resize() {
 
 	if ($nametagName.size())
 		nameHeight = $nametag.select('.name').node().offsetHeight;
+	$grid.selectAll('.grid').st('padding', `0 ${margin.right}px`)
 }
 
 function cleanDisplay(str) {
@@ -492,7 +495,7 @@ function setupAxis() {
 		.tickSize(-personW)
 		.tickPadding(8)
 		.tickFormat((val, i) => {
-			const suffix = i === 8 ? ' views' : '';
+			const suffix = i === 8 ? '+ views' : '';
 			return `${d3.format(',')(LEVELS[i])}${suffix}`;
 		});
 	const cardi = $person.filter(d => d.article === 'Cardi_B');
@@ -511,10 +514,15 @@ function setupAxis() {
 	$tickTextY.at('x', (d, i) => (i === numTicksY ? 44 : 0));
 }
 
+function setupLegend() {
+	const $li = $legend.selectAll('li').data(COLORS).enter().append('li')
+	$li.st('background-color', d => d)
+}
+
 function loadData() {
 	d3.loadData(
 		'assets/data/people-info.csv',
-		'assets/data/people-svg	.json',
+		'assets/data/people-svg.json',
 		'assets/data/people-monthly.csv',
 		(err, response) => {
 			if (err) console.log(err);
@@ -539,6 +547,7 @@ function init() {
 	updateDimensions();
 	resize();
 	setupGradient();
+	setupLegend();
 	preRenderPerson();
 	loadData();
 	resize();

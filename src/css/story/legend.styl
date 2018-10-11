@@ -1,0 +1,49 @@
+#graphic .graphic__legend
+	position fixed
+	bottom 0.5em
+	left 0
+	display flex
+	justify-content center
+	flex-direction row-reverse
+	width 100%
+	&:before
+		position absolute
+		display block
+		content 'Pageviews'
+		bottom 1.5rem
+		left 50%
+		transform translateX(-50%)
+		set-type-size(x-small, false)
+		line-height 1rem
+		opacity 0.67
+		font-weight 600
+		letter-spacing 0.05em
+		text-transform uppercase
+	li
+		width 1rem
+		height 1rem
+		position relative
+		&:first-of-type
+			&:after
+				position absolute
+				display block
+				content '10,000+'
+				top 0
+				left 1.5rem
+				set-type-size(x-small, false)
+				line-height 1rem
+				opacity 0.67
+				font-weight 600
+		&:last-of-type
+			&:before
+				display block
+				content '0'
+				position absolute
+				top 0
+				right 1.5rem
+				set-type-size(x-small, false)
+				line-height 1rem
+				opacity 0.67
+				font-weight 600
+				
+			

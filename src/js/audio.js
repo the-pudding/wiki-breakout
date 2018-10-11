@@ -8,7 +8,7 @@ let current = null;
 let progressCallback = null;
 let timer = null;
 
-Howler.volume(0.75);
+Howler.volume(0.0);
 
 function pause() {
 	// todo fade out previous
