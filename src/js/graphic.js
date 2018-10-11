@@ -526,6 +526,16 @@ function setupLegend() {
 	$li.st('background-color', d => d);
 }
 
+function handleMode() {
+	const mode = d3.select(this).at('data-mode');
+	$main.classed('is-ready', true);
+	$section.classed('is-visible', true);
+}
+
+function setupMode() {
+	d3.select('.begin__modes .btn').on('click', handleMode);
+}
+
 function loadData() {
 	d3.loadData(
 		'assets/data/people-info.csv',
@@ -545,8 +555,6 @@ function loadData() {
 				updateScroll();
 				// TODO improve
 				// preloadImages(joinedData);
-				$main.classed('is-ready', true);
-				$section.classed('is-visible', true);
 			}
 		}
 	);
@@ -557,6 +565,7 @@ function init() {
 	resize();
 	setupGradient();
 	setupLegend();
+	setupMode();
 	preRenderPerson();
 	loadData();
 	resize();
