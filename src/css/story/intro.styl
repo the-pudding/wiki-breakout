@@ -2,26 +2,58 @@
 	margin 0 auto
 	padding 4rem 1rem 1.5rem 1rem
 
+	&__begin
+		text-align center
+		display flex
+		flex-direction column
+		justify-content center
+		max-width 30rem
+		margin 1.5rem auto
+		p
+			margin 0.5rem 0
+		.btn
+			border-radius 1rem
+			background-color $yellow
+			color $bg
+			font-weight 600
+			line-height 1
+			padding 0.5em
+			set-type-size(small, false)
+			&--text
+				background-color transparent
+				border-radius 0
+				border-bottom 2px solid $fg
+				color $fg
+				set-type-size(x-small, false)
+				margin-top 0.5rem
+				width 9rem
+				margin 0.5rem auto
+			svg
+				width 1.25em
+				height 1.25em
+				vertical-align middle
+				transform translateY(-12.5%)
+
+		.begin__modes
+			display flex
+			justify-content space-around
+
 	&__hed
 		max-width 35rem
 		margin 0 auto
-		padding-top 5rem
+		padding-top 1.5rem
 		font-family $mono
 		font-weight 600
 		text-align center
-		// text-transform uppercase
+		color $fg
 		word-spacing -0.1em
 		set-type-size('xx-large', true)
 		+mq('bp-3')
 			set-type-size('xxx-large', true)
-		// +mq('bp-5')
-			// set-type-size('xxxx-large', true)
 	
 	&__byline
 		max-width $column-width
-		margin 0 auto
-		padding-top 5rem
-		padding-bottom 1.5rem
+		margin 1rem auto
 		text-align center
 		set-type-size('small', true)
 		
@@ -31,3 +63,4 @@
 		padding-top 1.5rem
 		text-align center
 		set-type-size('medium', true)
+	

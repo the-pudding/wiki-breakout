@@ -43,12 +43,13 @@ const scale = {
 	time: d3.scaleQuantize().range(COLORS.map(d => d).reverse())
 };
 
+const $main = d3.select('main');
 const $section = d3.select('#graphic');
 const $people = $section.select('.graphic__people');
 const $tracks = $section.select('.graphic__tracks');
 const $nametag = $section.select('.graphic__nametag');
-const $grid = $section.select('.graphic__grid')
-const $legend = $section.select('.graphic__legend')
+const $grid = $section.select('.graphic__grid');
+const $legend = $section.select('.graphic__legend');
 
 let $person = $people.selectAll('.person'); // empty to start
 let $nametagName = $nametag.selectAll('.name');
@@ -212,10 +213,10 @@ function preRenderPerson() {
 function updateDimensions() {
 	personW = 256;
 	personH = 192;
-	margin.left = personW * 0.55;
+	margin.left = personW * 0.5;
 	margin.right = personW * 0.75;
-	margin.top = personH * 0.5;
-	margin.bottom = personH * 0.5;
+	margin.top = personH * 0.25;
+	margin.bottom = personH * 0.25;
 	windowH = window.innerHeight;
 	halfH = Math.floor(windowH / 2) - infoElH / 2;
 	width = $section.node().offsetWidth - margin.left - margin.right;
@@ -250,9 +251,10 @@ function resize() {
 		const [x, y] = translatePerson(d);
 		const $p = d3.select(n[i]);
 		$p.st('top', y).st('left', x);
-		$p.select('.info')
-			.st('top', d.svg.start_y + svgMargin.top)
-			.st('max-width', margin.left * 2);
+		$p.select('.info').st('top', d.svg.start_y + svgMargin.top);
+
+		$p.select('.info .name').st('max-width', margin.left);
+
 		const $svg = $p.select('svg');
 		$svg.at({
 			width: personW + svgMargin.left + svgMargin.right,
@@ -271,7 +273,8 @@ function resize() {
 
 	if ($nametagName.size())
 		nameHeight = $nametag.select('.name').node().offsetHeight;
-	$grid.selectAll('.grid').st('padding', `0 ${margin.right}px`)
+	$grid.select('.grid__x').st('padding', `0 ${margin.right}px`);
+	$grid.select('.grid__y').st('padding', `0 ${margin.top}px`);
 }
 
 function cleanDisplay(str) {
@@ -495,7 +498,7 @@ function setupAxis() {
 		.tickSize(-personW)
 		.tickPadding(8)
 		.tickFormat((val, i) => {
-			const suffix = i === 8 ? '+ views' : '';
+			const suffix = i === 8 ? '+ pageviews' : '';
 			return `${d3.format(',')(LEVELS[i])}${suffix}`;
 		});
 	const cardi = $person.filter(d => d.article === 'Cardi_B');
@@ -511,12 +514,16 @@ function setupAxis() {
 
 	const $tickTextY = $axis.select('.axis--y').selectAll('.tick text');
 	const numTicksY = $tickTextY.size() - 2;
-	$tickTextY.at('x', (d, i) => (i === numTicksY ? 44 : 0));
+	$tickTextY.at('x', (d, i) => (i === numTicksY ? 80 : 0));
 }
 
 function setupLegend() {
-	const $li = $legend.selectAll('li').data(COLORS).enter().append('li')
-	$li.st('background-color', d => d)
+	const $li = $legend
+		.selectAll('li')
+		.data(COLORS)
+		.enter()
+		.append('li');
+	$li.st('background-color', d => d);
 }
 
 function loadData() {
@@ -538,6 +545,8 @@ function loadData() {
 				updateScroll();
 				// TODO improve
 				// preloadImages(joinedData);
+				$main.classed('is-ready', true);
+				$section.classed('is-visible', true);
 			}
 		}
 	);

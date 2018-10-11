@@ -1,9 +1,21 @@
 <div class='intro'>
 	<h1 class='intro__hed'>{{copy.hed}}</h1>
-	{{!-- <p class='intro__dek tk-atlas'>{{meta.description}}</p> --}}
-	{{!-- <p class='intro__byline tk-atlas'>By
+	<p class='intro__byline'>By
 		<a href='{{meta.author.url}}' target='_blank'>
 			<strong>{{meta.author.name}}</strong>
 		</a>
-	</p> --}}
+		and
+		<a href='{{meta.author2.url}}' target='_blank'>
+			<strong>{{meta.author2.name}}</strong>
+		</a>
+	</p>
+	<div class='intro__begin'>
+		<p>Choose your mode...</p>
+		<div class='begin__modes'>
+			<button class='btn btn--auto'>Autopilot: we scroll + @@include('volume-2.svg')</button>
+			<button class='btn btn--manual'>Manual: you scroll + @@include('volume-2.svg')</button>
+		</div>
+		<button class='btn btn--text'>I'm just browsing</button>
+	</div>
+	
 </div>
