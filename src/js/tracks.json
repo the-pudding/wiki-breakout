@@ -4,20 +4,50 @@
     "start": 0.0,
     "end": 0.1,
     "prevMid": 1,
-    "curMid": 1
+    "curMid": 1,
+    "subtitles": [
+      {
+        "time": 0,
+        "text": "Hey internet, this is Russell. And I'm Caitlyn."
+      },
+      {
+        "time": 10,
+        "text": "And today we are going to bla bla"
+      }
+    ],
+    "tutorial": [
+      {
+        "time": 25,
+        "trigger": "grid-y"
+      },
+      {
+        "time": 28,
+        "trigger": "grid-x"
+      },
+      {
+        "time": 35,
+        "trigger": "axis"
+      },
+      {
+        "time": 40,
+        "trigger": "cardi"
+      }
+    ]
   },
   {
     "id": "xxxtentacion",
     "start": 0.1,
     "end": 0.2,
     "prevMid": 1,
-    "curMid": 1
+    "curMid": 1,
+    "subtitles": []
   },
   {
     "id": "logan",
     "start": 0.35,
     "end": 0.5,
     "prevMid": 1,
-    "curMid": 1
+    "curMid": 1,
+    "subtitles": []
   }
 ]

@@ -38,3 +38,27 @@
 		transform-origin 0 0
 		transform rotate(-90deg) translate(-100vh, 0)
 		
+	.y--top.is-tutorial
+		animation pulse-y 1s ease-in-out
+	.x--left.is-tutorial
+		animation pulse-x 1s ease-in-out
+	
+@keyframes pulse-y
+	0%
+		opacity 0.67
+	50%
+		opacity 1
+		transform translateY(100%)
+	100%
+		opacity 0.67
+
+
+@keyframes pulse-x
+	0%
+		opacity 0.67
+	50%
+		opacity 1
+		transform translateY(-100%)
+	100%
+		opacity 0.67
+

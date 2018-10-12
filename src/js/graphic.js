@@ -5,6 +5,9 @@ import loadImage from './utils/load-image';
 import tracks from './tracks.json';
 import above from './above.json';
 
+// reverse subtitles
+tracks.forEach(t => t.subtitles.reverse());
+
 let ticking = false;
 let mobile = false;
 let width = 0;
@@ -215,7 +218,7 @@ function renderPerson(data) {
 	infoElH = infoElements[0].offsetHeight;
 
 	$person.select('.name').text(d => d.display);
-	$person.select('.description').text(d => d.description);
+	$person.select('.description').text(d => d.category_specific);
 	$person
 		.select('.thumbnail')
 		.st('background-image', d => `url(${d.thumbnail_source})`);
@@ -365,6 +368,28 @@ function updateInfo(el) {
 	$p.classed('is-active', true).raise();
 }
 
+function showTutorial(seek) {
+	tracks[0].tutorial.forEach(t => {
+		if (!t.done && seek > t.time) {
+			t.done = true;
+			// trigger
+			if (t.trigger === 'grid-y') {
+				$grid.select('.grid__y .y--top').classed('is-tutorial', true);
+			} else if (t.trigger === 'grid-x') {
+				$grid.select('.grid__x .x--left').classed('is-tutorial', true);
+			} else if (t.trigger === 'axis') {
+				$person.filter(d => d.article === 'Cardi_B').selectAll('.tick').classed('is-tutorial', true)
+			} else if (t.trigger === 'cardi') {
+			}
+		}
+	});
+}
+
+function updateSubtitle({ id, seek }) {
+	const { subtitles } = tracks.find(t => t.id === id);
+	const match = subtitles.find(s => seek >= s.time);
+}
+
 function handleAudioProgress({ id, duration, seek }) {
 	scale.time.domain([0, Math.ceil(duration)]);
 	const seconds = zeroPad(Math.round(duration - seek));
@@ -372,6 +397,9 @@ function handleAudioProgress({ id, duration, seek }) {
 		.select(`[data-id='${id}'] .timer`)
 		.text(`:${seconds}`)
 		.st('background-color', scale.time(seconds));
+
+	if (id === 'intro') showTutorial(seek);
+	if (seek > 0) updateSubtitle({ id, seek });
 }
 
 // lifted from enter-view

@@ -37,11 +37,29 @@
 				stroke darken($fg, 50)
 				stroke-width 0.5px
 			.axis--x
-				// .tick:nth-child(2n)
-				// 	display none
+				.tick:nth-child(2)
+					display none
 			.axis--y
 				.tick:nth-child(2),.tick:nth-child(11)
 					display none
+				.tick.is-tutorial:nth-child(3) text
+					animation tick 600ms 0ms ease-in-out
+				.tick.is-tutorial:nth-child(4) text
+					animation tick 600ms 200ms ease-in-out
+				.tick.is-tutorial:nth-child(5) text
+					animation tick 600ms 400ms ease-in-out
+				.tick.is-tutorial:nth-child(6) text
+					animation tick 600ms 600ms ease-in-out
+				.tick.is-tutorial:nth-child(7) text
+					animation tick 600ms 800ms ease-in-out
+				.tick.is-tutorial:nth-child(8) text
+					animation tick 600ms 1000ms ease-in-out
+				.tick.is-tutorial:nth-child(9) text
+					animation tick 600ms 1200ms ease-in-out
+				.tick.is-tutorial:nth-child(10) text
+					animation tick 2400ms 1400ms ease-in-out
+				
+
 
 	// INFO
 	.info
@@ -115,6 +133,7 @@
 				stroke url('#linear-gradient--outer')
 	
 	.person.is-active
+		pointer-events auto
 		p.name
 			opacity 1
 			transform translate(0,0)
@@ -127,9 +146,21 @@
 			opacity 1
 			transform translateY(0)
 		svg
+			pointer-events auto
 			opacity 1
 			.snake--inner
 				fill url('#linear-gradient--inner')
 			.snake--outer
 				stroke url('#linear-gradient--outer')
+
+@keyframes tick
+	0%
+		fill $fg
+		opacity 0.8
+	50%
+		fill $red
+		opacity 1
+	100%
+		fill $fg
+		opacity 0.8
 
