@@ -27,20 +27,18 @@
 				stroke darken($bg, 4)
 				stroke-linecap round
 				stroke-linejoin round
-				
-		path.spine
-			fill none
+			
 		
 		.g-axis
 			path
 				display none
 			line
 				stroke-dasharray 2px 2px
-				stroke lighten($bg, 20)
+				stroke darken($fg, 50)
 				stroke-width 0.5px
 			.axis--x
-				.tick:nth-child(2)
-					display none
+				// .tick:nth-child(2n)
+				// 	display none
 			.axis--y
 				.tick:nth-child(2),.tick:nth-child(11)
 					display none
@@ -62,9 +60,9 @@
 			order 0
 			text-align right
 			opacity 0
-			text-shadow 0 0 2px $fg
+			text-shadow 0 0 1px $fg
 			font-weight 600
-			background-color rgba($bg, 0.75)
+			background-color rgba($bg, 0.9)
 			border-radius 5px
 			padding 0 0.25em
 
@@ -84,11 +82,29 @@
 			// transition transform 250ms ease-in-out
 			pointer-events auto
 
+		p.description
+			position absolute
+			top 100%
+			right 0
+			margin 0
+			margin-top 1em
+			set-type-size(xx-small, true)
+			text-align right
+			font-weight 400
+			max-width 12rem
+			color darken($fg, 20)
+			background-color rgba($bg, 0.9)
+			border-radius 5px
+			padding 0 0.25em
+			opacity 0
+			transform translateY(-2.5rem)
 	
 	.person.is-hover
 		p.name
 			opacity 1
 			transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+		p.description
+			opacity 1
 		// .thumbnail
 		// 	filter grayscale(50%)
 		svg
@@ -107,6 +123,9 @@
 			transform scale(1) translate(0, 0)
 			box-shadow 0 0 3px 3px $fg
 			border-color $fg
+		p.description
+			opacity 1
+			transform translateY(0)
 		svg
 			opacity 1
 			.snake--inner

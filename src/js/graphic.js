@@ -78,6 +78,20 @@ function preloadImages(data) {
 	next();
 }
 
+function handleMouseMove(d) {
+	const $svg = d3.select(this);
+	const [x, y] = d3.mouse(this);
+	const oX = x - svgMargin.left;
+	const i = Math.round(scale.snakeX.invert(oX));
+	const len = d.monthly.length - 1;
+	const index = Math.min(Math.max(0, i), len);
+	const { pageviews_median, level } = d.monthly[index];
+	$svg
+		.select('.tip')
+		.text(`Avg. views/day: ${d3.format(',')(pageviews_median)}`)
+		.translate([scale.snakeX(index), y]);
+}
+
 function handleNameClick(d) {
 	const $p = $people.select(`[data-article="${d.article}"]`);
 	const $i = $p.select('.info');
@@ -170,12 +184,16 @@ function renderPerson(data) {
 	const $personEnter = $person.enter().append('div.person');
 	const $infoEnter = $personEnter.append('div.info');
 	const $svgEnter = $personEnter.append('svg');
+
+	$svgEnter.on('mousemove', handleMouseMove);
+
 	$svgEnter.append('g.g-axis');
 	const $visEnter = $svgEnter.append('g.g-vis');
 
 	$personEnter.at('data-article', d => d.article).st('z-index', d => d.z_index);
 
 	$infoEnter.append('p.name');
+	$infoEnter.append('p.description');
 
 	$infoEnter
 		.append('div.thumbnail')
@@ -186,7 +204,9 @@ function renderPerson(data) {
 
 	$visEnter.append('path.snake--inner').at('d', d => d.svg.inner);
 
-	$visEnter.append('path.spine').at('d', d => d.svg.spine);
+	// $visEnter.append('path.spine').at('d', d => d.svg.spine);
+
+	$svgEnter.append('text.tip');
 
 	$person = $personEnter.merge($person);
 
@@ -195,6 +215,7 @@ function renderPerson(data) {
 	infoElH = infoElements[0].offsetHeight;
 
 	$person.select('.name').text(d => d.display);
+	$person.select('.description').text(d => d.description);
 	$person
 		.select('.thumbnail')
 		.st('background-image', d => `url(${d.thumbnail_source})`);
@@ -367,7 +388,7 @@ function updateScroll() {
 			closest.index = i;
 		}
 
-		const opacity = Math.min(0.8, percentInverted * percentInverted);
+		const opacity = Math.min(0.67, percentInverted * percentInverted);
 
 		const $el = d3.select(personElements[i]);
 		$el.st({ opacity });
@@ -403,7 +424,11 @@ function updateScroll() {
 		d3.descending(Math.abs(a.curMid), Math.abs(b.curMid))
 	);
 	const trackToPlay = filteredTracks.pop();
-	if (trackToPlay) Audio.play({ t: trackToPlay, cb: handleAudioProgress });
+	if (trackToPlay) {
+		Audio.play({ t: trackToPlay, cb: handleAudioProgress });
+		$grid.classed('is-visible', true);
+		$legend.classed('is-visible', true);
+	}
 }
 
 function onScroll() {
