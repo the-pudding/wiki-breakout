@@ -128,7 +128,7 @@ function handlePersonExit({ article }) {
 function translatePerson(d) {
 	return [
 		scale.gridX(d.svg.x) - margin.left,
-		scale.gridY(d.svg.y) - margin.top
+		scale.gridY(d.svg.y) - margin.top - d.svg.start_y
 	];
 }
 
@@ -215,7 +215,7 @@ function updateDimensions() {
 	personH = 192;
 	margin.left = personW * 0.5;
 	margin.right = personW * 0.75;
-	margin.top = personH * 0.25;
+	margin.top = personH * 1.25;
 	margin.bottom = personH * 0.25;
 	windowH = window.innerHeight;
 	halfH = Math.floor(windowH / 2) - infoElH / 2;
@@ -230,7 +230,7 @@ function resize() {
 	// const h = height + margin.top + margin.bottom;
 
 	$people.st({ width, height, top: margin.top, left: margin.left });
-	$tracks.st({ width: margin.left, height, top: margin.top });
+	$tracks.st({ width: margin.left, height, top: margin.top - personH });
 
 	// $vis.translate([margin.left, margin.top]);
 	scale.gridX.range([margin.left, width - margin.right]);
@@ -238,7 +238,7 @@ function resize() {
 
 	$tracks.selectAll('.track').each((d, i, n) => {
 		const $el = d3.select(n[i]);
-		const top = scale.gridY(d.start);
+		const top = scale.gridY(d.start) - personH;
 		const h = scale.gridY(d.end) - top;
 
 		$el.st({ top, height: h });
@@ -273,8 +273,8 @@ function resize() {
 
 	if ($nametagName.size())
 		nameHeight = $nametag.select('.name').node().offsetHeight;
-	$grid.select('.grid__x').st('padding', `0 ${margin.right}px`);
-	$grid.select('.grid__y').st('padding', `0 ${margin.top}px`);
+	$grid.select('.grid__x').st('padding', '0 32px');
+	$grid.select('.grid__y').st('padding', '0 32px');
 }
 
 function cleanDisplay(str) {
