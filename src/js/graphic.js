@@ -100,13 +100,7 @@ function preloadImages(data) {
 	next();
 }
 
-function handleMouseMove(d) {
-	const $svg = d3.select(this);
-	const [x, y] = d3.mouse(this);
-	const oX = x - svgMargin.left;
-	const i = Math.round(scale.snakeX.invert(oX));
-	const len = d.monthly.length - 1;
-	const index = Math.min(Math.max(0, i), len);
+function updateTip({ $svg, d, oX, y, index }) {
 	const { pageviews_median, timestamp } = d.monthly[index];
 	const date = new Date(
 		`${timestamp.substring(0, 4)}-${timestamp.substring(
@@ -138,6 +132,15 @@ function handleMouseMove(d) {
 		y1: -y,
 		y2: personH - y
 	});
+}
+function handleMouseMove(d) {
+	const $svg = d3.select(this);
+	const [x, y] = d3.mouse(this);
+	const oX = x - svgMargin.left;
+	const i = Math.round(scale.snakeX.invert(oX));
+	const len = d.monthly.length - 1;
+	const index = Math.min(Math.max(0, i), len);
+	updateTip({ $svg, d, oX, y, index });
 }
 
 function handleMouseLeave() {
@@ -426,9 +429,11 @@ function showTutorial(seek) {
 					.selectAll('.tick')
 					.classed('is-tutorial', true);
 			} else if (t.trigger === 'cardi') {
-				const $tip = $person
-					.filter(d => d.article === 'Cardi_B')
-					.select('.g-tip');
+				const $svg = $person.filter(d => d.article === 'Cardi_B');
+				updateTip({ $svg, d: $svg.datum(), oX: 0, y: 0, index: 19 });
+			} else if (t.trigger === 'out') {
+				const $svg = $person.filter(d => d.article === 'Cardi_B');
+				$svg.select('.g-tip').classed('is-visible', false);
 			}
 		}
 	});
