@@ -1,5 +1,10 @@
 {
   "google": {
-    "id": "1CKdOK6UwPnU7mRYwFHtDOBhGXhX_Tdfaq4_fdS29zpM"
+    "id": "1CKdOK6UwPnU7mRYwFHtDOBhGXhX_Tdfaq4_fdS29zpM",
+    "filename": "template-data/copy"
+  },
+  "google2": {
+    "id": "19An4eWSIsa0LRGDYd97Jmq9a8pM1XjR6EANFIuAIezo",
+    "filename": "src/js/tracks"
   }
 }

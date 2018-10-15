@@ -2,11 +2,18 @@
 import 'stickyfilljs';
 import Audio from './audio';
 import loadImage from './utils/load-image';
-import tracks from './tracks.json';
+import { tracks } from './tracks.json';
 import above from './above.json';
 
 // reverse subtitles
-tracks.forEach(t => t.subtitles.reverse());
+tracks.forEach(t => {
+	t.subtitles.reverse();
+	t.prevMid = 1;
+	t.curMid = 1;
+	t.start = +t.start;
+	t.end = +t.end;
+	if (t.tutorial) t.tutorial = t.tutorial.map(v => ({ ...v, time: +v.time }));
+});
 
 let ticking = false;
 let mobile = false;
@@ -419,6 +426,9 @@ function showTutorial(seek) {
 					.selectAll('.tick')
 					.classed('is-tutorial', true);
 			} else if (t.trigger === 'cardi') {
+				const $tip = $person
+					.filter(d => d.article === 'Cardi_B')
+					.select('.g-tip');
 			}
 		}
 	});
