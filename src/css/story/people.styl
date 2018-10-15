@@ -10,6 +10,7 @@
 			transition opacity 150ms ease-in-out
 			opacity 1
 			pointer-events none
+		
 		text
 			fill $fg
 			font-family $mono
@@ -17,6 +18,7 @@
 			font-weight 600
 			opacity 0.8
 			text-transform uppercase
+		
 		path.snake
 			&--inner
 				stroke none
@@ -27,8 +29,20 @@
 				stroke darken($bg, 4)
 				stroke-linecap round
 				stroke-linejoin round
-			
-		
+		.g-tip
+			opacity 0
+			&.is-visible
+				opacity 1
+		.g-tip line
+			stroke white
+			stroke-width 2px
+			stroke-opacity 0.5
+			stroke-dasharray 2px 2px
+		.g-tip text.bg
+			stroke-width 3px
+			stroke $bg
+			fill none
+
 		.g-axis
 			path
 				display none
@@ -148,6 +162,7 @@
 		svg
 			pointer-events auto
 			opacity 1
+			cursor crosshair
 			.snake--inner
 				fill url('#linear-gradient--inner')
 			.snake--outer

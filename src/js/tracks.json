@@ -2,7 +2,7 @@
   {
     "id": "intro",
     "start": 0.0,
-    "end": 0.1,
+    "end": 0.05,
     "prevMid": 1,
     "curMid": 1,
     "subtitles": [
@@ -36,8 +36,8 @@
   },
   {
     "id": "xxxtentacion",
-    "start": 0.1,
-    "end": 0.2,
+    "start": 0.05,
+    "end": 0.1,
     "prevMid": 1,
     "curMid": 1,
     "subtitles": []

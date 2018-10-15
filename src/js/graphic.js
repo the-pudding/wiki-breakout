@@ -22,7 +22,7 @@ let currentNametagIndex = -1;
 let nameHeight = 0;
 
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-const svgMargin = { top: 24, right: 32, bottom: 24, left: 48 };
+const svgMargin = { top: 24, right: 40, bottom: 24, left: 48 };
 const BP = 600;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
@@ -88,11 +88,42 @@ function handleMouseMove(d) {
 	const i = Math.round(scale.snakeX.invert(oX));
 	const len = d.monthly.length - 1;
 	const index = Math.min(Math.max(0, i), len);
-	const { pageviews_median, level } = d.monthly[index];
-	$svg
-		.select('.tip')
-		.text(`Avg. views/day: ${d3.format(',')(pageviews_median)}`)
-		.translate([scale.snakeX(index), y]);
+	const { pageviews_median, timestamp } = d.monthly[index];
+	const date = new Date(
+		`${timestamp.substring(0, 4)}-${timestamp.substring(
+			4,
+			6
+		)}-${timestamp.substring(6, 8)}`
+	);
+
+	const $tip = $svg.select('.g-tip').translate([scale.snakeX(index), y]);
+	$tip.classed('is-visible', true);
+
+	$tip
+		.selectAll('.views')
+		.at('x', oX < personW / 1.8 ? 8 : -8)
+		.at('y', scale.snakeY(4) - y)
+		.at('text-anchor', oX < personW / 1.8 ? 'start' : 'end')
+		.text(`Daily views: ${d3.format(',')(pageviews_median)}`);
+
+	$tip
+		.selectAll('.date')
+		.at('x', oX < personW / 1.8 ? 8 : -8)
+		.at('y', scale.snakeY(4) - y - 16)
+		.at('text-anchor', oX < personW / 1.8 ? 'start' : 'end')
+		.text(`${d3.timeFormat('%b %Y')(date)}`);
+
+	$tip.select('line').at({
+		x1: 0,
+		x2: 0,
+		y1: -y,
+		y2: personH - y
+	});
+}
+
+function handleMouseLeave() {
+	const $svg = d3.select(this);
+	$svg.select('.g-tip').classed('is-visible', false);
 }
 
 function handleNameClick(d) {
@@ -188,7 +219,7 @@ function renderPerson(data) {
 	const $infoEnter = $personEnter.append('div.info');
 	const $svgEnter = $personEnter.append('svg');
 
-	$svgEnter.on('mousemove', handleMouseMove);
+	$svgEnter.on('mousemove', handleMouseMove).on('mouseleave', handleMouseLeave);
 
 	$svgEnter.append('g.g-axis');
 	const $visEnter = $svgEnter.append('g.g-vis');
@@ -209,7 +240,12 @@ function renderPerson(data) {
 
 	// $visEnter.append('path.spine').at('d', d => d.svg.spine);
 
-	$svgEnter.append('text.tip');
+	const $tipEnter = $visEnter.append('g.g-tip');
+	$tipEnter.append('line');
+	$tipEnter.append('text.date.bg');
+	$tipEnter.append('text.date.fg');
+	$tipEnter.append('text.views.bg');
+	$tipEnter.append('text.views.fg');
 
 	$person = $personEnter.merge($person);
 
@@ -378,7 +414,10 @@ function showTutorial(seek) {
 			} else if (t.trigger === 'grid-x') {
 				$grid.select('.grid__x .x--left').classed('is-tutorial', true);
 			} else if (t.trigger === 'axis') {
-				$person.filter(d => d.article === 'Cardi_B').selectAll('.tick').classed('is-tutorial', true)
+				$person
+					.filter(d => d.article === 'Cardi_B')
+					.selectAll('.tick')
+					.classed('is-tutorial', true);
 			} else if (t.trigger === 'cardi') {
 			}
 		}
@@ -581,8 +620,6 @@ function setupLegend() {
 
 function handleMode() {
 	const mode = d3.select(this).at('data-mode');
-	$main.classed('is-ready', true);
-	$section.classed('is-visible', true);
 }
 
 function setupMode() {
@@ -606,6 +643,8 @@ function loadData() {
 				resize();
 				setupScroll();
 				updateScroll();
+				// $main.classed('is-ready', true);
+				$section.classed('is-visible', true);
 				// TODO improve
 				// preloadImages(joinedData);
 			}
