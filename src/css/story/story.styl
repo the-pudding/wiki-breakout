@@ -23,6 +23,31 @@ main
 	background-color rgba($bg, 0.9)
 	padding 0.75rem
 	border-radius 5px
+	pointer-events none
+	visibility hidden
+	&.is-visible
+		visibility visible
 	p
 		margin 0
 		set-type-size(small)
+
+.graphic__options
+	position fixed
+	top 0
+	right 3rem
+	display flex
+	z-index set-index(overlay)
+	padding 1rem 0
+	background-color rgba($bg, 0.75)
+	button
+		background transparent
+		display block
+		margin 0
+		set-type-size(x-small)
+		text-transform uppercase
+		letter-spacing 0.05em
+		cursor pointer
+		color $fg
+		margin-right 1rem
+		border-bottom 1px solid $fg
+		

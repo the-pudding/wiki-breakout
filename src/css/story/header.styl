@@ -18,10 +18,14 @@ header
 			width 100%
 	
 header.is-sticky
-	position absolute
-	transform translate3d(0,0,0)
-	background-color $white
-	box-shadow 0 0 7px 1px $gray-light
+	.sidebar
+		position fixed
+		top 0
+		right 0
+		width 100%
+		transform translate3d(0,0,0)
+		background-color $white
+		// box-shadow 0 0 7px 1px $gray-light
 	
 	a.logo
 		margin 0 auto
@@ -35,6 +39,7 @@ header.is-sticky
 		cursor pointer
 		line-height 1
 		z-index set-index(overlay)
+		background-color rgba($bg,0.75)
 		svg
 			stroke $off-black
 		
@@ -103,7 +108,7 @@ header.is-sticky
 header.is-sticky.is-dark
 	background-color $off-black
 	background-color transparent
-	box-shadow 0 0 7px 1px $white
+	// box-shadow 0 0 7px 1px $white
 	box-shadow none
 
 	svg

@@ -1,19 +1,26 @@
 import { Howl, Howler } from 'howler';
 
+import bgData from './bg';
+
 const FADE_OUT = 250;
 const path = 'assets/audio';
+const pathBg = 'assets/preview';
 const tracks = {};
+const bg = {};
 let current = null;
+let currentBg = null;
 let progressCallback = null;
 let timer = null;
 let files = [];
 
-Howler.volume(0.75);
+function mute(m) {
+	Howler.mute(m);
+}
 
 function pause() {
 	// todo fade out previous
 	const t = tracks[current.id];
-	if (t) {
+	if (t && t.playing()) {
 		t.fade(t.volume(), 0, FADE_OUT);
 		d3.select(current.el).st('color', 'black');
 	}
@@ -32,12 +39,56 @@ function play({ t, cb }) {
 	progressCallback = cb;
 	if (current && current.id !== t.id) pause();
 	current = t;
-	if (tracks[t.id] && !tracks[t.id].playing()) {
-		tracks[t.id].play();
-		tracks[t.id].volume(1);
+	const track = tracks[t.id];
+	if (track && !track.playing()) {
+		track.play();
+		track.volume(1);
 		d3.select(t.el).st('color', 'red');
 		timer = d3.timeout(progress, 250);
 	}
+}
+
+function pauseBg() {
+	const track = bg[currentBg];
+	if (track && !track.playing()) track.fade(track.volume(), 0, FADE_OUT);
+}
+
+function playBg(article) {
+	if (currentBg !== article) pauseBg();
+	currentBg = article;
+	const track = bg[article];
+	if (track && !track.playing()) {
+		track.play();
+		track.volume(0.05);
+	}
+}
+
+function loadBg() {
+	let i = 0;
+
+	const loadNext = () => {
+		const f = bgData[i];
+		const t = new Howl({
+			src: `${pathBg}/${f}.mp3`,
+			loop: true,
+			onload: () => {
+				bg[f] = t;
+				if (currentBg === f) playBg(currentBg);
+				advance();
+			},
+			onloaderror: advance,
+			onfade: () => {
+				bg[f].stop();
+			}
+		});
+	};
+
+	const advance = () => {
+		i += 1;
+		if (i < bgData.length) loadNext();
+	};
+
+	loadNext();
 }
 
 function load(cb) {
@@ -60,9 +111,10 @@ function load(cb) {
 		});
 	};
 
-	const advance = err => {
+	const advance = () => {
 		i += 1;
 		if (i < files.length) loadNext();
+		else loadBg();
 	};
 
 	loadNext();
@@ -73,4 +125,4 @@ function init(trackData, cb) {
 	load(cb);
 }
 
-export default { init, play };
+export default { init, play, playBg, mute };

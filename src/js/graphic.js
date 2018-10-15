@@ -3,7 +3,6 @@ import 'stickyfilljs';
 import Audio from './audio';
 import loadImage from './utils/load-image';
 import { tracks } from './tracks.json';
-import above from './above.json';
 
 // reverse subtitles
 tracks.forEach(t => {
@@ -64,6 +63,9 @@ const $grid = $section.select('.graphic__grid');
 const $legend = $section.select('.graphic__legend');
 const $subtitles = $section.select('.graphic__subtitles');
 const $subtitlesP = $subtitles.select('p');
+const $options = $section.select('.graphic__options');
+const $optMute = $options.select('.btn--mute');
+const $optSub = $options.select('.btn--sub');
 
 let $person = $people.selectAll('.person'); // empty to start
 let $nametagName = $nametag.selectAll('.name');
@@ -275,16 +277,6 @@ function renderPerson(data) {
 	$person.select('.thumbnail').st('background-image', `url(${fallbackImg})`);
 }
 
-function preRenderPerson() {
-	const data = Object.keys(above)
-		.map(d => above[d])
-		.map(d => ({
-			article: d.id,
-			svg: d
-		}));
-	renderPerson(data);
-}
-
 function updateDimensions() {
 	personW = 256;
 	personH = 192;
@@ -478,7 +470,6 @@ function updateScroll() {
 
 		const $el = d3.select(personElements[i]);
 		$el.st({ opacity });
-		// if (opacity === 1) $el.raise();
 	});
 
 	const el = personElements[closest.index];
@@ -488,6 +479,8 @@ function updateScroll() {
 		currentNametagIndex = closest.index;
 		updateNametag(el);
 		updateInfo(el);
+		const datum = $p.datum();
+		if (datum.category_broad === 'music') Audio.playBg(datum.article);
 	}
 
 	const datum = $p.datum();
@@ -645,6 +638,27 @@ function setupMode() {
 	d3.select('.begin__modes .btn').on('click', handleMode);
 }
 
+function handleMuteClick() {
+	const $el = d3.select(this);
+	let text = $el.text();
+	Audio.mute(text === 'mute');
+	text = text === 'mute' ? 'unmute' : 'mute';
+	$el.text(text);
+}
+
+function handleSubClick() {
+	const $el = d3.select(this);
+	let text = $el.text();
+	$subtitles.classed('is-visible', text === 'show subtitles');
+	text = text === 'show subtitles' ? 'hide subtitles' : 'show subtitles';
+	$el.text(text);
+}
+
+function setupOptions() {
+	$optMute.on('click', handleMuteClick);
+	$optSub.on('click', handleSubClick);
+}
+
 function loadData() {
 	d3.loadData(
 		'assets/data/people-info.csv',
@@ -675,7 +689,7 @@ function init() {
 	setupGradient();
 	setupLegend();
 	setupMode();
-	preRenderPerson();
+	setupOptions();
 	loadData();
 	resize();
 }
