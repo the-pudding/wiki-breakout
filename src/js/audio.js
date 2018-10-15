@@ -1,7 +1,5 @@
 import { Howl, Howler } from 'howler';
 
-import bgData from './bg';
-
 const FADE_OUT = 250;
 const path = 'assets/audio';
 const pathBg = 'assets/preview';
@@ -12,6 +10,7 @@ let currentBg = null;
 let progressCallback = null;
 let timer = null;
 let files = [];
+let bgFiles = [];
 
 function mute(m) {
 	Howler.mute(m);
@@ -50,7 +49,7 @@ function play({ t, cb }) {
 
 function pauseBg() {
 	const track = bg[currentBg];
-	if (track && !track.playing()) track.fade(track.volume(), 0, FADE_OUT);
+	if (track && track.playing()) track.fade(track.volume(), 0, FADE_OUT);
 }
 
 function playBg(article) {
@@ -67,9 +66,9 @@ function loadBg() {
 	let i = 0;
 
 	const loadNext = () => {
-		const f = bgData[i];
+		const f = bgFiles[i];
 		const t = new Howl({
-			src: `${pathBg}/${f}.mp3`,
+			src: `${pathBg}/${f.replace(/[^\w]/g, '')}.mp3`,
 			loop: true,
 			onload: () => {
 				bg[f] = t;
@@ -85,7 +84,7 @@ function loadBg() {
 
 	const advance = () => {
 		i += 1;
-		if (i < bgData.length) loadNext();
+		if (i < bgFiles.length) loadNext();
 	};
 
 	loadNext();
@@ -121,8 +120,9 @@ function load(cbProgress, cbEnd) {
 	loadNext();
 }
 
-function init(trackData, cbProgress, cbEnd) {
+function init(peopleData, trackData, cbProgress, cbEnd) {
 	files = trackData.map(t => ({ id: t.id }));
+	bgFiles = peopleData.filter(d => d.spotify_url).map(d => d.article);
 	load(cbProgress, cbEnd);
 }
 

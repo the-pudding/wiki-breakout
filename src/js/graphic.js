@@ -491,7 +491,7 @@ function updateScroll() {
 		updateNametag(el);
 		updateInfo(el);
 		const datum = $p.datum();
-		if (datum.category_broad === 'music') Audio.playBg(datum.article);
+		if (datum.spotify_url) Audio.playBg(datum.article);
 	}
 
 	const datum = $p.datum();
@@ -678,7 +678,7 @@ function loadData() {
 		(err, response) => {
 			if (err) console.log(err);
 			else {
-				Audio.init(tracks, handleAudioProgress, handleAudioEnd);
+				Audio.init(response[0], tracks, handleAudioProgress, handleAudioEnd);
 				joinedData = joinData(response);
 				renderPerson(joinedData);
 				renderNametag(joinedData);
