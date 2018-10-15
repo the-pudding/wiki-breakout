@@ -248,8 +248,9 @@ function renderPerson(data) {
 
 	$personEnter.at('data-article', d => d.article).st('z-index', d => d.z_index);
 
-	$infoEnter.append('p.name');
-	$infoEnter.append('p.description');
+	const $name = $infoEnter.append('p.name');
+	$name.append('span.display');
+	$name.append('span.description');
 
 	$infoEnter
 		.append('div.thumbnail')
@@ -275,8 +276,8 @@ function renderPerson(data) {
 	infoElements = $person.select('.info').nodes();
 	infoElH = infoElements[0].offsetHeight;
 
-	$person.select('.name').text(d => d.display);
-	$person.select('.description').text(d => d.category_specific);
+	$person.select('.name .display').text(d => d.display);
+	$person.select('.name .description').text(d => d.category_specific);
 	$person.select('.thumbnail').st('background-image', `url(${fallbackImg})`);
 }
 
@@ -445,7 +446,12 @@ function updateSubtitle({ id, seek }) {
 	$subtitlesP.text(text);
 }
 
+function handleAudioEnd() {
+	$subtitles.classed('is-end', true);
+}
+
 function handleAudioProgress({ id, duration, seek }) {
+	$subtitles.classed('is-end', false);
 	scale.time.domain([0, Math.ceil(duration)]);
 	const seconds = zeroPad(Math.round(duration - seek));
 	$tracks
@@ -672,7 +678,7 @@ function loadData() {
 		(err, response) => {
 			if (err) console.log(err);
 			else {
-				Audio.init(tracks, handleAudioProgress);
+				Audio.init(tracks, handleAudioProgress, handleAudioEnd);
 				joinedData = joinData(response);
 				renderPerson(joinedData);
 				renderNametag(joinedData);

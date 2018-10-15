@@ -91,7 +91,7 @@ function loadBg() {
 	loadNext();
 }
 
-function load(cb) {
+function load(cbProgress, cbEnd) {
 	let i = 0;
 
 	const loadNext = () => {
@@ -100,11 +100,12 @@ function load(cb) {
 			src: `${path}/${f}.mp3`,
 			onload: () => {
 				tracks[f] = t;
-				cb({ id: f, duration: t.duration(), seek: 0 });
+				cbProgress({ id: f, duration: t.duration(), seek: 0 });
 				if (current && current.id === f) play({ t: current });
 				advance();
 			},
 			onloaderror: advance,
+			onend: cbEnd,
 			onfade: () => {
 				tracks[f].stop();
 			}
@@ -120,9 +121,9 @@ function load(cb) {
 	loadNext();
 }
 
-function init(trackData, cb) {
+function init(trackData, cbProgress, cbEnd) {
 	files = trackData.map(t => ({ id: t.id }));
-	load(cb);
+	load(cbProgress, cbEnd);
 }
 
 export default { init, play, playBg, mute };
