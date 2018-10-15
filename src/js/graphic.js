@@ -12,6 +12,7 @@ tracks.forEach(t => {
 	t.curMid = 1;
 	t.start = +t.start;
 	t.end = +t.end;
+	t.subtitles = t.subtitles.map(s => ({ ...s, time: s.time ? +s.time : 0 }));
 	if (t.tutorial) t.tutorial = t.tutorial.map(v => ({ ...v, time: +v.time }));
 });
 
@@ -28,6 +29,7 @@ let joinedData = [];
 let currentNametagIndex = -1;
 let nameHeight = 0;
 
+const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 const svgMargin = { top: 24, right: 40, bottom: 24, left: 48 };
 const BP = 600;
@@ -54,12 +56,14 @@ const scale = {
 };
 
 const $main = d3.select('main');
-const $section = d3.select('#graphic');
+const $section = $main.select('#graphic');
 const $people = $section.select('.graphic__people');
 const $tracks = $section.select('.graphic__tracks');
 const $nametag = $section.select('.graphic__nametag');
 const $grid = $section.select('.graphic__grid');
 const $legend = $section.select('.graphic__legend');
+const $subtitles = $section.select('.graphic__subtitles');
+const $subtitlesP = $subtitles.select('p');
 
 let $person = $people.selectAll('.person'); // empty to start
 let $nametagName = $nametag.selectAll('.name');
@@ -74,14 +78,20 @@ function zeroPad(number) {
 }
 
 function preloadImages(data) {
-	let i = 0;
+	let i = data.length - 1;
 
 	const next = () => {
 		const url = data[i].thumbnail_source;
 		loadImage(url, err => {
-			if (!err) imageSet.add(data[i].article, true);
-			i += 1;
-			if (i < data.length) next();
+			if (!err) {
+				imageSet.add(data[i].thumbnail_source, true);
+				$people
+					.select(`[data-article="${data[i].article}"]`)
+					.select('.thumbnail')
+					.st('background-image', `url(${data[i].thumbnail_source})`);
+			}
+			i -= 1;
+			if (i > -1) next();
 		});
 	};
 
@@ -262,9 +272,7 @@ function renderPerson(data) {
 
 	$person.select('.name').text(d => d.display);
 	$person.select('.description').text(d => d.category_specific);
-	$person
-		.select('.thumbnail')
-		.st('background-image', d => `url(${d.thumbnail_source})`);
+	$person.select('.thumbnail').st('background-image', `url(${fallbackImg})`);
 }
 
 function preRenderPerson() {
@@ -436,7 +444,8 @@ function showTutorial(seek) {
 
 function updateSubtitle({ id, seek }) {
 	const { subtitles } = tracks.find(t => t.id === id);
-	const match = subtitles.find(s => seek >= s.time);
+	const { text } = subtitles.find(s => seek >= s.time);
+	$subtitlesP.text(text);
 }
 
 function handleAudioProgress({ id, duration, seek }) {
@@ -644,7 +653,7 @@ function loadData() {
 		(err, response) => {
 			if (err) console.log(err);
 			else {
-				Audio.init(handleAudioProgress);
+				Audio.init(tracks, handleAudioProgress);
 				joinedData = joinData(response);
 				renderPerson(joinedData);
 				renderNametag(joinedData);
@@ -653,10 +662,8 @@ function loadData() {
 				resize();
 				setupScroll();
 				updateScroll();
-				// $main.classed('is-ready', true);
 				$section.classed('is-visible', true);
-				// TODO improve
-				// preloadImages(joinedData);
+				preloadImages(joinedData);
 			}
 		}
 	);

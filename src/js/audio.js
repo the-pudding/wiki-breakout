@@ -1,14 +1,14 @@
 import { Howl, Howler } from 'howler';
-import files from './tracks.json';
 
-const FADE_OUT = 500;
+const FADE_OUT = 250;
 const path = 'assets/audio';
 const tracks = {};
 let current = null;
 let progressCallback = null;
 let timer = null;
+let files = [];
 
-Howler.volume(0.0);
+Howler.volume(0.75);
 
 function pause() {
 	// todo fade out previous
@@ -68,7 +68,8 @@ function load(cb) {
 	loadNext();
 }
 
-function init(cb) {
+function init(trackData, cb) {
+	files = trackData.map(t => ({ id: t.id }));
 	load(cb);
 }
 
