@@ -66,6 +66,7 @@ const $subtitlesP = $subtitles.select('p');
 const $options = $section.select('.graphic__options');
 const $optMute = $options.select('.btn--mute');
 const $optSub = $options.select('.btn--sub');
+const $begin = $main.select('.intro__begin');
 
 let $person = $people.selectAll('.person'); // empty to start
 let $nametagName = $nametag.selectAll('.name');
@@ -520,7 +521,7 @@ function updateScroll() {
 		$legend.classed('is-visible', true);
 	}
 
-	const showGrid = closest.index > 0;
+	const showGrid = closest.index > 0 && window.scrollY > 0;
 	$grid.classed('is-visible', showGrid);
 	$legend.classed('is-visible', showGrid);
 	$nametag.classed('is-visible', showGrid);
@@ -648,21 +649,28 @@ function setupLegend() {
 
 function handleMode() {
 	const mode = d3.select(this).at('data-mode');
+
+	if (window.scrollY === 0) window.scrollTo(0, 1);
+	$begin.classed('is-hidden', true);
+	Audio.play({ t: tracks[0], cb: handleAudioProgress });
+	Audio.playBg('Cardi_B');
+
 	if (mode !== 'text') {
 		Audio.toggle(true);
-		Audio.play({ t: tracks[0], cb: handleAudioProgress });
-		Audio.playBg('Cardi_B');
+		$subtitles.classed('is-visible', false);
+		$optSub.text('show subtitles');
+		$optMute.text('mute');
 	}
 }
 
 function setupMode() {
-	d3.select('.begin__modes .btn').on('click', handleMode);
+	$begin.selectAll('.btn').on('click', handleMode);
 }
 
 function handleMuteClick() {
 	const $el = d3.select(this);
 	let text = $el.text();
-	Audio.mute(text === 'mute');
+	Audio.toggle(text !== 'mute');
 	text = text === 'mute' ? 'unmute' : 'mute';
 	$el.text(text);
 }

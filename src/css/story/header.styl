@@ -1,5 +1,5 @@
 header
-	z-index set-index('overlay')
+	z-index set-index('overlay') + 1000
 	position absolute
 	top 0
 	left 0
@@ -49,11 +49,13 @@ header.is-sticky
 			&:last-of-type
 				display none
 		
-		&.is-visible span
-			&:first-of-type
-				display none
-			&:last-of-type
-				display block
+		&.is-visible
+			background-color $white
+			span
+				&:first-of-type
+					display none
+				&:last-of-type
+					display block
 
 			svg
 				stroke $off-white

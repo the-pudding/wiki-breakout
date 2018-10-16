@@ -4,11 +4,13 @@
 
 	&__begin
 		text-align center
-		display flex
-		flex-direction column
-		justify-content center
 		max-width 30rem
-		margin 1.5rem auto
+		margin 0 auto
+		margin-top 3rem
+		transition opacity 250ms ease-in-out
+		&.is-hidden
+			opacity 0
+			pointer-events none
 		p
 			margin 0.5rem 0
 		.btn
@@ -17,26 +19,30 @@
 			color $bg
 			font-weight 600
 			line-height 1
-			padding 0.5em 0.75em
+			padding 0.5em 1em
 			set-type-size(small, false)
+			transition all 200ms ease-in-out
+			&:hover
+				background-color $red
 			&--text
 				background-color transparent
+				padding 0.5em 0
 				border-radius 0
-				border-bottom 2px solid $fg
+				border-bottom 1px solid $fg
 				color $fg
 				set-type-size(x-small, false)
 				margin-top 0.5rem
 				width 9rem
 				margin 0.5rem auto
+				&:hover
+					background-color transparent
+					color $red
+					border-bottom 1px solid $red
 			svg
 				width 1.25em
 				height 1.25em
 				vertical-align middle
 				transform translateY(-5%)
-
-		.begin__modes
-			display flex
-			justify-content space-around
 
 	&__hed
 		max-width 35rem

@@ -11,12 +11,11 @@ let progressCallback = null;
 let timer = null;
 let files = [];
 let bgFiles = [];
-let shouldPlay = false;
 
-Howler.volume(0.75);
+Howler.volume(0);
 
 function toggle(should) {
-	shouldPlay = should;
+	Howler.volume(should ? 0.75 : 0);
 }
 
 function mute(m) {
@@ -42,17 +41,15 @@ function progress() {
 }
 
 function play({ t, cb }) {
-	if (shouldPlay) {
-		progressCallback = cb;
-		if (current && current.id !== t.id) pause();
-		current = t;
-		const track = tracks[t.id];
-		if (track && !track.playing()) {
-			track.play();
-			track.volume(1);
-			d3.select(t.el).st('color', 'red');
-			timer = d3.timeout(progress, 250);
-		}
+	progressCallback = cb;
+	if (current && current.id !== t.id) pause();
+	current = t;
+	const track = tracks[t.id];
+	if (track && !track.playing()) {
+		track.play();
+		track.volume(1);
+		d3.select(t.el).st('color', 'red');
+		timer = d3.timeout(progress, 250);
 	}
 }
 
@@ -62,15 +59,13 @@ function pauseBg() {
 }
 
 function playBg(article) {
-	if (shouldPlay) {
-		if (currentBg !== article) pauseBg();
-		currentBg = article;
-		const track = bg[article];
-		if (track && !track.playing()) {
-			track.volume(0);
-			track.play();
-			track.fade(0, 0.25, FADE_DUR * 4);
-		}
+	if (currentBg !== article) pauseBg();
+	currentBg = article;
+	const track = bg[article];
+	if (track && !track.playing()) {
+		track.volume(0);
+		track.play();
+		track.fade(0, 0.25, FADE_DUR * 4);
 	}
 }
 
