@@ -11,6 +11,7 @@ tracks.forEach(t => {
 	t.curMid = 1;
 	t.start = +t.start;
 	t.end = +t.end;
+	t.people = t.people.split(',').map(d => d.trim());
 	t.subtitles = t.subtitles.map(s => ({ ...s, time: s.time ? +s.time : 0 }));
 	if (t.tutorial) t.tutorial = t.tutorial.map(v => ({ ...v, time: +v.time }));
 });
@@ -464,6 +465,17 @@ function handleAudioProgress({ id, duration, seek }) {
 	if (seek > 0) updateSubtitle({ id, seek });
 }
 
+function highlightPeople(people) {
+	$person.classed('is-highlight', false);
+	people.forEach(p => {
+		$people
+			.select(`[data-article="${p}"]`)
+			.classed('is-highlight', true)
+			.st('opacity', 1)
+			.raise();
+	});
+}
+
 // lifted from enter-view
 function updateScroll() {
 	ticking = false;
@@ -481,7 +493,7 @@ function updateScroll() {
 		const opacity = Math.min(0.67, percentInverted * percentInverted);
 
 		const $el = d3.select(personElements[i]);
-		$el.st({ opacity });
+		if (!$el.classed('is-highlight')) $el.st({ opacity });
 	});
 
 	const el = personElements[closest.index];
@@ -517,8 +529,7 @@ function updateScroll() {
 	const trackToPlay = filteredTracks.pop();
 	if (trackToPlay) {
 		Audio.play({ t: trackToPlay, cb: handleAudioProgress });
-		$grid.classed('is-visible', true);
-		$legend.classed('is-visible', true);
+		highlightPeople(trackToPlay.people);
 	}
 
 	const showGrid = closest.index > 0 && window.scrollY > 0;
