@@ -4,7 +4,10 @@
 	top 50%
 	margin-top 0
 	z-index set-index(top)
-	// transition margin-top 100ms
+	opacity 0
+	transition opacity 500ms ease-in-out
+	&.is-visible
+		opacity 1
 	li
 		set-type-size(x-small, false)
 		line-height 1

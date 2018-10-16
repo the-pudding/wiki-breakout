@@ -519,6 +519,11 @@ function updateScroll() {
 		$grid.classed('is-visible', true);
 		$legend.classed('is-visible', true);
 	}
+
+	const showGrid = closest.index > 0;
+	$grid.classed('is-visible', showGrid);
+	$legend.classed('is-visible', showGrid);
+	$nametag.classed('is-visible', showGrid);
 }
 
 function onScroll() {
@@ -646,7 +651,7 @@ function handleMode() {
 	if (mode !== 'text') {
 		Audio.toggle(true);
 		Audio.play({ t: tracks[0], cb: handleAudioProgress });
-		Audio.playBg('Cardi_B')
+		Audio.playBg('Cardi_B');
 	}
 }
 
