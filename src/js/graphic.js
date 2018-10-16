@@ -247,6 +247,7 @@ function renderPerson(data) {
 	const $visEnter = $svgEnter.append('g.g-vis');
 
 	$personEnter.at('data-article', d => d.article).st('z-index', d => d.z_index);
+	$personEnter.at('data-y', d => d.svg.y);
 
 	const $name = $infoEnter.append('p.name');
 	$name.append('span.display');
@@ -643,6 +644,7 @@ function setupLegend() {
 
 function handleMode() {
 	const mode = d3.select(this).at('data-mode');
+	if (mode !== 'text') Audio.play({ t: tracks[0], cb: handleAudioProgress });
 }
 
 function setupMode() {

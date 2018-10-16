@@ -59,7 +59,7 @@ function playBg(article) {
 	if (track && !track.playing()) {
 		track.volume(0);
 		track.play();
-		track.fade(0, 0.5, FADE_DUR * 4);
+		track.fade(0, 0.25, FADE_DUR * 4);
 	}
 }
 
