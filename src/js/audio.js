@@ -1,6 +1,6 @@
 import { Howl, Howler } from 'howler';
 
-const FADE_OUT = 250;
+const FADE_DUR = 250;
 const path = 'assets/audio';
 const pathBg = 'assets/preview';
 const tracks = {};
@@ -20,7 +20,7 @@ function pause() {
 	// todo fade out previous
 	const t = tracks[current.id];
 	if (t && t.playing()) {
-		t.fade(t.volume(), 0, FADE_OUT);
+		t.fade(t.volume(), 0, FADE_DUR);
 		d3.select(current.el).st('color', 'black');
 	}
 }
@@ -49,7 +49,7 @@ function play({ t, cb }) {
 
 function pauseBg() {
 	const track = bg[currentBg];
-	if (track && track.playing()) track.fade(track.volume(), 0, FADE_OUT);
+	if (track && track.playing()) track.fade(track.volume(), 0, FADE_DUR * 2);
 }
 
 function playBg(article) {
@@ -57,8 +57,9 @@ function playBg(article) {
 	currentBg = article;
 	const track = bg[article];
 	if (track && !track.playing()) {
+		track.volume(0);
 		track.play();
-		track.volume(0.05);
+		track.fade(0, 0.5, FADE_DUR * 4);
 	}
 }
 
@@ -77,7 +78,7 @@ function loadBg() {
 			},
 			onloaderror: advance,
 			onfade: () => {
-				bg[f].stop();
+				if (f !== currentBg) bg[f].stop();
 			}
 		});
 	};
