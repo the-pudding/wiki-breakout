@@ -11,6 +11,13 @@ let progressCallback = null;
 let timer = null;
 let files = [];
 let bgFiles = [];
+let shouldPlay = false;
+
+Howler.volume(0.75);
+
+function toggle(should) {
+	shouldPlay = should;
+}
 
 function mute(m) {
 	Howler.mute(m);
@@ -35,15 +42,17 @@ function progress() {
 }
 
 function play({ t, cb }) {
-	progressCallback = cb;
-	if (current && current.id !== t.id) pause();
-	current = t;
-	const track = tracks[t.id];
-	if (track && !track.playing()) {
-		track.play();
-		track.volume(1);
-		d3.select(t.el).st('color', 'red');
-		timer = d3.timeout(progress, 250);
+	if (false) {
+		progressCallback = cb;
+		if (current && current.id !== t.id) pause();
+		current = t;
+		const track = tracks[t.id];
+		if (track && !track.playing()) {
+			track.play();
+			track.volume(1);
+			d3.select(t.el).st('color', 'red');
+			timer = d3.timeout(progress, 250);
+		}
 	}
 }
 
@@ -53,13 +62,15 @@ function pauseBg() {
 }
 
 function playBg(article) {
-	if (currentBg !== article) pauseBg();
-	currentBg = article;
-	const track = bg[article];
-	if (track && !track.playing()) {
-		track.volume(0);
-		track.play();
-		track.fade(0, 0.25, FADE_DUR * 4);
+	if (shouldPlay) {
+		if (currentBg !== article) pauseBg();
+		currentBg = article;
+		const track = bg[article];
+		if (track && !track.playing()) {
+			track.volume(0);
+			track.play();
+			track.fade(0, 0.25, FADE_DUR * 4);
+		}
 	}
 }
 
@@ -127,4 +138,4 @@ function init(peopleData, trackData, cbProgress, cbEnd) {
 	load(cbProgress, cbEnd);
 }
 
-export default { init, play, playBg, mute };
+export default { init, play, playBg, mute, toggle };

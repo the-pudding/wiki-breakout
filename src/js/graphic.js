@@ -312,8 +312,7 @@ function resize() {
 		const $el = d3.select(n[i]);
 		const top = scale.gridY(d.start) - personH;
 		const h = scale.gridY(d.end) - top;
-
-		$el.st({ top, height: h });
+		$el.st({ top: 0, height: h });
 	});
 
 	scale.snakeX.range([0, personW]);
@@ -644,7 +643,11 @@ function setupLegend() {
 
 function handleMode() {
 	const mode = d3.select(this).at('data-mode');
-	if (mode !== 'text') Audio.play({ t: tracks[0], cb: handleAudioProgress });
+	if (mode !== 'text') {
+		Audio.toggle(true);
+		Audio.play({ t: tracks[0], cb: handleAudioProgress });
+		Audio.playBg('Cardi_B')
+	}
 }
 
 function setupMode() {
