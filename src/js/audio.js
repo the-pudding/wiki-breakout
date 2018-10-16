@@ -42,7 +42,7 @@ function progress() {
 }
 
 function play({ t, cb }) {
-	if (false) {
+	if (shouldPlay) {
 		progressCallback = cb;
 		if (current && current.id !== t.id) pause();
 		current = t;
