@@ -93,10 +93,14 @@
 			opacity 0
 			text-shadow 0 0 1px $fg
 			font-weight 600
-			background-color rgba($bg, 0.9)
-			border-radius 5px
-			padding 0.25em
+			display inline-block
 			position relative
+			.display
+				background-color rgba($bg, 0.9)
+				padding 0.25em
+				box-decoration-break clone
+				box-shadow -0.25rem 0 0 rgba($bg, 0.9), 0.25rem 0 0 rgba($bg, 0.9)
+
 
 		.thumbnail
 			min-width $thumb-size
@@ -122,7 +126,6 @@
 			set-type-size(xx-small, true)
 			font-weight 400
 			color darken($fg, 20)
-			border-radius 0
 			padding 0 0.5em
 			opacity 0
 			transform translateY(-2.5rem)
@@ -130,6 +133,7 @@
 			letter-spacing 0.05em
 			background-color rgba($bg, 0.9)
 			text-align right
+			box-shadow -0.25rem 0 0 rgba($bg, 0.9), 0.25rem 0 0 rgba($bg, 0.9)
 	
 	.person.is-highlight
 		p.name

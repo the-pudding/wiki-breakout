@@ -189,8 +189,9 @@ function handlePersonExit({ article }) {
 		.parent();
 
 	const active = $p.classed('is-active');
+	const highlight = $p.classed('is-highlight');
 	const datum = $p.datum();
-	datum.z_index = active ? 1000 : datum.sort_val;
+	datum.z_index = active || highlight ? 1000 : datum.sort_val;
 
 	$p.classed('is-hover', false)
 		.st('opacity', +$p.at('data-opacity'))
@@ -215,6 +216,10 @@ function renderTracks() {
 
 	$trackEnter.each((d, i, n) => {
 		tracks[i].el = n[i];
+		tracks[i].timerEl = d3
+			.select(n[i])
+			.select('.timer')
+			.node();
 	});
 }
 
@@ -366,8 +371,8 @@ function joinData(data) {
 		}))
 		.map(d => ({
 			...d,
-			sort_val: Math.round(+d.svg.y * 1000),
-			z_index: Math.round(+d.svg.y * 1000),
+			sort_val: Math.round(+d.svg.y * 999),
+			z_index: Math.round(+d.svg.y * 999),
 			svg: {
 				...d.svg,
 				start_y: +d.svg.start_y,
@@ -414,7 +419,7 @@ function updateNametag(el) {
 function updateInfo(el) {
 	const $p = d3.select(el);
 	$person.classed('is-active', false);
-	$p.classed('is-active', true).raise();
+	$p.classed('is-active', true);
 }
 
 function showTutorial(seek) {
@@ -468,11 +473,13 @@ function handleAudioProgress({ id, duration, seek }) {
 function highlightPeople(people) {
 	$person.classed('is-highlight', false);
 	people.forEach(p => {
-		$people
-			.select(`[data-article="${p}"]`)
-			.classed('is-highlight', true)
+		const $p = $people.select(`[data-article="${p}"]`);
+		const datum = $p.datum();
+		datum.z_index = 1000;
+		$p.classed('is-highlight', true)
+			.datum(datum)
 			.st('opacity', 1)
-			.raise();
+			.st('z-index', d => d.z_index);
 	});
 }
 
@@ -507,26 +514,20 @@ function updateScroll() {
 		if (datum.spotify_url) Audio.playBg(datum.article);
 	}
 
-	const datum = $p.datum();
-	datum.z_index = 1000;
-
-	d3.select(el)
-		.datum(datum)
-		.st('opacity', 1)
-		.st('z-index', d => d.z_index);
-
 	tracks.forEach(t => {
-		const { top } = t.el.getBoundingClientRect();
+		const { top } = t.timerEl.getBoundingClientRect();
 		const fromMid = top - halfH;
 		t.prevMid = t.curMid;
 		t.curMid = fromMid;
 	});
 
-	const filteredTracks = tracks.filter(t => t.prevMid * t.curMid <= 0);
-	filteredTracks.sort((a, b) =>
-		d3.descending(Math.abs(a.curMid), Math.abs(b.curMid))
-	);
-	const trackToPlay = filteredTracks.pop();
+	// const filteredTracks = tracks.filter(t => t.prevMid * t.curMid <= 0);
+	// filteredTracks.sort((a, b) =>
+	// 	d3.descending(Math.abs(a.curMid), Math.abs(b.curMid))
+	// );
+	// const trackToPlay = filteredTracks.pop();
+	const trackToPlay = tracks.find(t => t.curMid === 16.5); // super dark magic
+
 	if (trackToPlay) {
 		Audio.play({ t: trackToPlay, cb: handleAudioProgress });
 		highlightPeople(trackToPlay.people);
@@ -536,6 +537,15 @@ function updateScroll() {
 	$grid.classed('is-visible', showGrid);
 	$legend.classed('is-visible', showGrid);
 	$nametag.classed('is-visible', showGrid);
+	$options.classed('is-visible', showGrid);
+
+	const datum = $p.datum();
+	datum.z_index = 1000;
+
+	d3.select(el)
+		.datum(datum)
+		.st('opacity', 1)
+		.st('z-index', d => d.z_index);
 }
 
 function onScroll() {

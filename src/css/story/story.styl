@@ -3,27 +3,26 @@ body
 	font-family $mono
 button
 	font-family $mono
-main
-	// height 100.1vh
-	// overflow hidden
-	// &.is-ready
-		// height auto
+
 #graphic
 	position relative
 	visibility hidden
+	min-height 1200px
 	&.is-visible
 		visibility visible
 
 .graphic__subtitles
 	position fixed
-	bottom 2.8rem
-	left 2.8rem
-	width 33%
-	min-width 18rem
+	bottom 0
+	left 50%
+	transform translate(-50%, 0)
+	width 80%
+	max-width 32rem
+
 	z-index set-index(overlay)
 	background-color rgba($bg, 0.9)
 	padding 0.75rem
-	border-radius 5px
+	padding-bottom 0.5rem
 	pointer-events none
 	visibility hidden
 	&.is-end
@@ -32,7 +31,7 @@ main
 		visibility visible
 	p
 		margin 0
-		set-type-size(small)
+		set-type-size(small, true)
 
 .graphic__options
 	position fixed
@@ -42,6 +41,9 @@ main
 	z-index set-index(overlay)
 	padding 1rem 0
 	background-color rgba($bg, 0.75)
+	visibility hidden
+	&.is-visible
+		visibility visible
 	button
 		background transparent
 		display block
@@ -55,7 +57,18 @@ main
 		border-bottom 1px solid $fg
 		
 #outro
-	padding 3rem 1rem
-	max-width 40rem
-	margin 0 auto
-	margin-top 5rem
+	padding 1rem
+	margin-top 10rem
+	a
+		text-decoration none
+		border-bottom 1px solid $bg
+		color $bg
+		&:visited, &:hover
+			color $bg
+	p
+		background $yellow
+		color $bg
+		set-type-size(x-small, true)
+		max-width 42rem
+		margin 1.5rem auto
+		padding 0.75rem
