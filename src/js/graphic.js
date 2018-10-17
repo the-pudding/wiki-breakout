@@ -5,7 +5,6 @@ import loadImage from './utils/load-image';
 import tracker from './utils/tracker';
 import { tracks } from './tracks.json';
 
-
 // reverse subtitles
 tracks.forEach(t => {
 	t.subtitles.reverse();
@@ -36,7 +35,7 @@ let prevTrack = null;
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 const svgMargin = { top: 24, right: 40, bottom: 24, left: 48 };
-const BP = 600;
+const BP = 640;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
 const COLORS = [
@@ -166,7 +165,6 @@ function handleNameClick(d) {
 }
 
 function handlePersonEnter({ article }) {
-	
 	const $p = d3
 		.select(this)
 		.parent()
@@ -298,26 +296,25 @@ function renderPerson(data) {
 function updateDimensions() {
 	personW = 256;
 	personH = 192;
-	margin.left = personW * 0.67;
-	margin.right = personW * 0.67;
-	margin.top = personH * 1.25;
-	margin.bottom = personH * 0.25;
+	const w = $section.node().offsetWidth;
 	windowH = window.innerHeight;
 	halfH = Math.floor(windowH / 2) - infoElH / 2;
-	width = $section.node().offsetWidth - margin.left - margin.right;
-	height = windowH * 9 - margin.top - margin.bottom;
 	mobile = width < BP;
+
+	margin.left = mobile ? 48 : personW * 0.67;
+	margin.right = mobile ? 48 : personW * 0.67;
+	margin.top = personH * 1.25;
+	margin.bottom = personH * 0.25;
+
+	width = w - margin.left - margin.right;
+	height = windowH * 9 - margin.top - margin.bottom;
 }
 
 function resize() {
 	updateDimensions();
-	// const w = width + margin.left + margin.right;
-	// const h = height + margin.top + margin.bottom;
-
 	$people.st({ width, height, top: margin.top, left: margin.left });
 	$tracks.st({ width: margin.left, height, top: margin.top - personH });
 
-	// $vis.translate([margin.left, margin.top]);
 	scale.gridX.range([margin.left, width - margin.right]);
 	scale.gridY.range([margin.top, height - margin.bottom]);
 
@@ -338,12 +335,15 @@ function resize() {
 		$p.select('.info').st('top', d.svg.start_y + svgMargin.top);
 
 		$p.select('.info .name').st('max-width', margin.left);
-
 		const $svg = $p.select('svg');
-		$svg.at({
-			width: personW + svgMargin.left + svgMargin.right,
-			height: personH + svgMargin.top + svgMargin.bottom
-		});
+		$svg
+			.at({
+				width: personW + svgMargin.left + svgMargin.right,
+				height: personH + svgMargin.top + svgMargin.bottom
+			})
+			.st('position', mobile ? 'absolute' : 'static')
+			.st('left', mobile ? -x - margin.left : 'auto')
+			.st('top', mobile ? 0 : 'auto');
 		$svg.select('.g-vis').translate([svgMargin.left, svgMargin.top]);
 		const $axis = $svg.select('.g-axis');
 		$axis.translate([svgMargin.left, svgMargin.top]);
@@ -541,8 +541,9 @@ function updateScroll() {
 	// const trackToPlay = filteredTracks.pop();
 	const trackToPlay = tracks.find(t => t.curMid === t.prevMid);
 	if (trackToPlay) {
-		if (trackToPlay.id !== prevTrack) Audio.play({ t: trackToPlay, cb: handleAudioProgress });
-		prevTrack = trackToPlay.id
+		if (trackToPlay.id !== prevTrack)
+			Audio.play({ t: trackToPlay, cb: handleAudioProgress });
+		prevTrack = trackToPlay.id;
 		highlightPeople(trackToPlay.people);
 	}
 

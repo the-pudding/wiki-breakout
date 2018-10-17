@@ -14,17 +14,17 @@ button
 .graphic__subtitles
 	position fixed
 	bottom 0
-	left 50%
-	transform translate(-50%, 0)
-	width 80%
+	width 100%
 	max-width 32rem
-
 	z-index set-index(overlay)
 	background-color rgba($bg, 0.9)
 	padding 0.75rem
 	padding-bottom 0.5rem
 	pointer-events none
 	visibility hidden
+	left 50%
+	transform translate(-50%, 0)
+		
 	&.is-end
 		opacity 0
 	&.is-visible
@@ -38,7 +38,7 @@ button
 	top 0
 	right 3rem
 	display flex
-	z-index set-index(overlay)
+	z-index set-index(overlay) + 1000
 	padding 1rem 0
 	background-color rgba($bg, 0.75)
 	visibility hidden
