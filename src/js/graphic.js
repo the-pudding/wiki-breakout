@@ -119,14 +119,14 @@ function updateTip({ $svg, d, oX, y, index }) {
 	$tip
 		.selectAll('.views')
 		.at('x', oX < personW / 1.8 ? 8 : -8)
-		.at('y', scale.snakeY(4) - y)
+		.at('y', scale.snakeY(1) - y)
 		.at('text-anchor', oX < personW / 1.8 ? 'start' : 'end')
 		.text(`Daily views: ${d3.format(',')(pageviews_median)}`);
 
 	$tip
 		.selectAll('.date')
 		.at('x', oX < personW / 1.8 ? 8 : -8)
-		.at('y', scale.snakeY(4) - y - 16)
+		.at('y', scale.snakeY(1) - y - 16)
 		.at('text-anchor', oX < personW / 1.8 ? 'start' : 'end')
 		.text(`${d3.timeFormat('%b %Y')(date)}`);
 
