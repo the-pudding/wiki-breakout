@@ -2,7 +2,7 @@
 import 'stickyfilljs';
 import Audio from './audio';
 import loadImage from './utils/load-image';
-import tracker from './utils/tracker'
+import tracker from './utils/tracker';
 import { tracks } from './tracks.json';
 
 // reverse subtitles
@@ -193,8 +193,8 @@ function handlePersonExit({ article }) {
 	const active = $p.classed('is-active');
 	const highlight = $p.classed('is-highlight');
 	const datum = $p.datum();
-	if (active) datum.z_index =  1001
-	else if (highlight) datum.z_index = 1000
+	if (active) datum.z_index = 1001;
+	else if (highlight) datum.z_index = 1000;
 	else datum.z_index = datum.sort_val;
 
 	$p.classed('is-hover', false)
@@ -491,8 +491,7 @@ function resetPerson($p) {
 	const datum = $p.datum();
 	datum.z_index = datum.sort_val;
 
-	$p.datum(datum)
-		.st('z-index', d => d.z_index);
+	$p.datum(datum).st('z-index', d => d.z_index);
 }
 
 // lifted from enter-view
@@ -538,8 +537,7 @@ function updateScroll() {
 	// 	d3.descending(Math.abs(a.curMid), Math.abs(b.curMid))
 	// );
 	// const trackToPlay = filteredTracks.pop();
-	const trackToPlay = tracks.find(t => t.curMid === 16.5); // super dark magic
-
+	const trackToPlay = tracks.find(t => t.curMid === t.prevMid);
 	if (trackToPlay) {
 		Audio.play({ t: trackToPlay, cb: handleAudioProgress });
 		highlightPeople(trackToPlay.people);
@@ -559,7 +557,8 @@ function updateScroll() {
 		.st('opacity', 1)
 		.st('z-index', d => d.z_index);
 
-	if (prevPersonIndex >= 0 && prevPersonIndex !== closest.index) resetPerson(d3.select(personElements[prevPersonIndex]))
+	if (prevPersonIndex >= 0 && prevPersonIndex !== closest.index)
+		resetPerson(d3.select(personElements[prevPersonIndex]));
 	prevPersonIndex = closest.index;
 }
 
@@ -690,7 +689,7 @@ function handleMode() {
 	$begin.classed('is-hidden', true);
 	Audio.play({ t: tracks[0], cb: handleAudioProgress });
 	Audio.playBg('Cardi_B');
-	tracker.send({ category: 'mode', action: mode, once: true })
+	tracker.send({ category: 'mode', action: mode, once: true });
 	if (mode !== 'text') {
 		Audio.toggle(true);
 		$subtitles.classed('is-visible', false);
@@ -700,7 +699,7 @@ function handleMode() {
 }
 
 function setupMode() {
-	tracker.send({category: 'mode', action: 'load', once: true})
+	tracker.send({ category: 'mode', action: 'load', once: true });
 	$begin.selectAll('.btn').on('click', handleMode);
 }
 
