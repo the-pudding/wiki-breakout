@@ -2,6 +2,7 @@
 import 'stickyfilljs';
 import Audio from './audio';
 import loadImage from './utils/load-image';
+import tracker from './utils/tracker'
 import { tracks } from './tracks.json';
 
 // reverse subtitles
@@ -28,6 +29,7 @@ let infoElH = 0;
 let joinedData = [];
 let currentNametagIndex = -1;
 let nameHeight = 0;
+let prevPersonIndex = -1;
 
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -169,7 +171,7 @@ function handlePersonEnter({ article }) {
 		.parent();
 
 	const datum = $p.datum();
-	datum.z_index = 1001;
+	datum.z_index = 1002;
 
 	$p.datum(datum)
 		.classed('is-hover', true)
@@ -191,7 +193,9 @@ function handlePersonExit({ article }) {
 	const active = $p.classed('is-active');
 	const highlight = $p.classed('is-highlight');
 	const datum = $p.datum();
-	datum.z_index = active || highlight ? 1000 : datum.sort_val;
+	if (active) datum.z_index =  1001
+	else if (highlight) datum.z_index = 1000
+	else datum.z_index = datum.sort_val;
 
 	$p.classed('is-hover', false)
 		.st('opacity', +$p.at('data-opacity'))
@@ -292,8 +296,8 @@ function renderPerson(data) {
 function updateDimensions() {
 	personW = 256;
 	personH = 192;
-	margin.left = personW * 0.5;
-	margin.right = personW * 0.75;
+	margin.left = personW * 0.67;
+	margin.right = personW * 0.67;
 	margin.top = personH * 1.25;
 	margin.bottom = personH * 0.25;
 	windowH = window.innerHeight;
@@ -483,6 +487,14 @@ function highlightPeople(people) {
 	});
 }
 
+function resetPerson($p) {
+	const datum = $p.datum();
+	datum.z_index = datum.sort_val;
+
+	$p.datum(datum)
+		.st('z-index', d => d.z_index);
+}
+
 // lifted from enter-view
 function updateScroll() {
 	ticking = false;
@@ -540,12 +552,15 @@ function updateScroll() {
 	$options.classed('is-visible', showGrid);
 
 	const datum = $p.datum();
-	datum.z_index = 1000;
+	datum.z_index = 1001;
 
 	d3.select(el)
 		.datum(datum)
 		.st('opacity', 1)
 		.st('z-index', d => d.z_index);
+
+	if (prevPersonIndex >= 0 && prevPersonIndex !== closest.index) resetPerson(d3.select(personElements[prevPersonIndex]))
+	prevPersonIndex = closest.index;
 }
 
 function onScroll() {
@@ -675,7 +690,7 @@ function handleMode() {
 	$begin.classed('is-hidden', true);
 	Audio.play({ t: tracks[0], cb: handleAudioProgress });
 	Audio.playBg('Cardi_B');
-
+	tracker.send({ category: 'mode', action: mode, once: true })
 	if (mode !== 'text') {
 		Audio.toggle(true);
 		$subtitles.classed('is-visible', false);
@@ -685,6 +700,7 @@ function handleMode() {
 }
 
 function setupMode() {
+	tracker.send({category: 'mode', action: 'load', once: true})
 	$begin.selectAll('.btn').on('click', handleMode);
 }
 
