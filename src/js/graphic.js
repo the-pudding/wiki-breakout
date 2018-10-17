@@ -415,9 +415,7 @@ function preBindData() {
 function updateNametag(el) {
 	const $p = d3.select(el);
 	const article = $p.at('data-article');
-	console.log(article);
 	const $name = $nametag.select(`[data-article="${article}"]`);
-	console.log($name);
 	$nametag.selectAll('.name').classed('is-active', false);
 	$name.classed('is-active', true);
 
