@@ -5,6 +5,7 @@ import loadImage from './utils/load-image';
 import tracker from './utils/tracker';
 import { tracks } from './tracks.json';
 
+
 // reverse subtitles
 tracks.forEach(t => {
 	t.subtitles.reverse();
@@ -30,6 +31,7 @@ let joinedData = [];
 let currentNametagIndex = -1;
 let nameHeight = 0;
 let prevPersonIndex = -1;
+let prevTrack = null;
 
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -164,7 +166,7 @@ function handleNameClick(d) {
 }
 
 function handlePersonEnter({ article }) {
-	$people.select(`[data-article="${article}"]`).st('opacity', 1);
+	
 	const $p = d3
 		.select(this)
 		.parent()
@@ -180,7 +182,7 @@ function handlePersonEnter({ article }) {
 		.st('z-index', d => d.z_index)
 		.datum(datum);
 
-	// TODO
+	$people.select(`[data-article="${article}"]`).st('opacity', 1);
 }
 
 function handlePersonExit({ article }) {
@@ -539,7 +541,8 @@ function updateScroll() {
 	// const trackToPlay = filteredTracks.pop();
 	const trackToPlay = tracks.find(t => t.curMid === t.prevMid);
 	if (trackToPlay) {
-		Audio.play({ t: trackToPlay, cb: handleAudioProgress });
+		if (trackToPlay.id !== prevTrack) Audio.play({ t: trackToPlay, cb: handleAudioProgress });
+		prevTrack = trackToPlay.id
 		highlightPeople(trackToPlay.people);
 	}
 
