@@ -307,22 +307,23 @@ function updateDimensions() {
 	margin.bottom = personH * 0.25;
 
 	width = w - margin.left - margin.right;
-	height = windowH * 9 - margin.top - margin.bottom;
+	height = 6000 - margin.top - margin.bottom;
 }
 
 function resize() {
 	updateDimensions();
 	$people.st({ width, height, top: margin.top, left: margin.left });
-	$tracks.st({ width: margin.left, height, top: margin.top - personH });
+	$tracks.st({ width: margin.left, height, top: personH / 2 });
 
 	scale.gridX.range([margin.left, width - margin.right]);
 	scale.gridY.range([margin.top, height - margin.bottom]);
 
 	$tracks.selectAll('.track').each((d, i, n) => {
 		const $el = d3.select(n[i]);
-		const top = scale.gridY(d.start) - personH;
+		const top = scale.gridY(d.start);
 		const h = scale.gridY(d.end) - top;
 		$el.st({ top: 0, height: h });
+		$el.select('.timer').st('top', '50%');
 	});
 
 	scale.snakeX.range([0, personW]);
@@ -414,7 +415,9 @@ function preBindData() {
 function updateNametag(el) {
 	const $p = d3.select(el);
 	const article = $p.at('data-article');
-	const $name = $nametag.select(`[data-article="${article}"`);
+	console.log(article);
+	const $name = $nametag.select(`[data-article="${article}"]`);
+	console.log($name);
 	$nametag.selectAll('.name').classed('is-active', false);
 	$name.classed('is-active', true);
 
@@ -518,7 +521,6 @@ function updateScroll() {
 
 	const el = personElements[closest.index];
 	const $p = d3.select(el);
-
 	if (currentNametagIndex !== closest.index) {
 		currentNametagIndex = closest.index;
 		updateNametag(el);
