@@ -17,6 +17,7 @@ tracks.forEach(t => {
 	if (t.tutorial) t.tutorial = t.tutorial.map(v => ({ ...v, time: +v.time }));
 });
 
+let first = true;
 let ticking = false;
 let mobile = false;
 let width = 0;
@@ -34,7 +35,7 @@ let prevTrack = null;
 
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-const svgMargin = { top: 24, right: 40, bottom: 24, left: 48 };
+const svgMargin = { top: 16, right: 0, bottom: 24, left: 54 };
 const BP = 640;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
@@ -71,6 +72,7 @@ const $options = $section.select('.graphic__options');
 const $optMute = $options.select('.btn--mute');
 const $optSub = $options.select('.btn--sub');
 const $begin = $main.select('.intro__begin');
+const $intro = $main.select('.intro');
 
 let $person = $people.selectAll('.person'); // empty to start
 let $nametagName = $nametag.selectAll('.name');
@@ -250,9 +252,10 @@ function renderPerson(data) {
 
 	const $personEnter = $person.enter().append('div.person');
 	const $infoEnter = $personEnter.append('div.info');
-	const $svgEnter = $personEnter.append('svg');
+	const $chartEnter = $personEnter.append('div.chart');
+	const $svgEnter = $chartEnter.append('svg');
 
-	$svgEnter.on('mousemove', handleMouseMove).on('mouseleave', handleMouseLeave);
+	$svgEnter.on('mousemove touchmove', handleMouseMove).on('mouseleave touchend', handleMouseLeave);
 
 	$svgEnter.append('g.g-axis');
 	const $visEnter = $svgEnter.append('g.g-vis');
@@ -266,8 +269,8 @@ function renderPerson(data) {
 
 	$infoEnter
 		.append('div.thumbnail')
-		.on('mouseenter', handlePersonEnter)
-		.on('mouseleave', handlePersonExit);
+		.on('mouseenter touchstart', handlePersonEnter)
+		.on('mouseleave touchend', handlePersonExit);
 
 	$visEnter.append('path.snake--outer').at('d', d => d.svg.outer);
 
@@ -298,11 +301,11 @@ function updateDimensions() {
 	personH = 192;
 	const w = $section.node().offsetWidth;
 	windowH = window.innerHeight;
-	halfH = Math.floor(windowH / 2) - infoElH / 2;
-	mobile = width < BP;
-
-	margin.left = mobile ? 48 : personW * 0.67;
-	margin.right = mobile ? 48 : personW * 0.67;
+	mobile = w < BP;
+	const target = mobile ? 2 / 3 : 1 / 2;
+	halfH = Math.floor(windowH * target) - infoElH / 2;
+	margin.left = mobile ? 32 : personW * 0.67;
+	margin.right = mobile ? 32 : personW * 0.67;
 	margin.top = personH * 1.25;
 	margin.bottom = personH * 0.25;
 
@@ -323,7 +326,7 @@ function resize() {
 		const top = scale.gridY(d.start);
 		const h = scale.gridY(d.end) - top;
 		$el.st({ top: 0, height: h });
-		$el.select('.timer').st('top', '50%');
+		$el.select('.timer').st('top', mobile ? '40px' : '50%');
 	});
 
 	scale.snakeX.range([0, personW]);
@@ -335,16 +338,19 @@ function resize() {
 		$p.st('top', y).st('left', x);
 		$p.select('.info').st('top', d.svg.start_y + svgMargin.top);
 
-		$p.select('.info .name').st('max-width', margin.left);
+		$p.select('.info .name').st('max-width', mobile ? '100%' : margin.left);
+
+		$p.select('.chart').st({
+			width: personW + svgMargin.left + svgMargin.right,
+			height: personH + svgMargin.top + svgMargin.bottom
+		});
 		const $svg = $p.select('svg');
-		$svg
-			.at({
-				width: personW + svgMargin.left + svgMargin.right,
-				height: personH + svgMargin.top + svgMargin.bottom
-			})
-			.st('position', mobile ? 'absolute' : 'static')
-			.st('left', mobile ? -x - margin.left : 'auto')
-			.st('top', mobile ? 0 : 'auto');
+		// $svg.at({
+		// 	width: personW + svgMargin.left + svgMargin.right,
+		// 	height: personH + svgMargin.top + svgMargin.bottom
+		// });
+		// .st('left', mobile ? -x - margin.left : 'auto')
+
 		$svg.select('.g-vis').translate([svgMargin.left, svgMargin.top]);
 		const $axis = $svg.select('.g-axis');
 		$axis.translate([svgMargin.left, svgMargin.top]);
@@ -358,8 +364,8 @@ function resize() {
 
 	if ($nametagName.size())
 		nameHeight = $nametag.select('.name').node().offsetHeight;
-	$grid.select('.grid__x').st('padding', '0 32px');
-	$grid.select('.grid__y').st('padding', '0 32px');
+	$grid.select('.grid__x').st('padding', `0 ${mobile ? 8 : 32}px`);
+	$grid.select('.grid__y').st('padding', `0 ${mobile ? 128 : 32}px`);
 }
 
 function cleanDisplay(str) {
@@ -465,9 +471,14 @@ function handleAudioEnd() {
 }
 
 function handleAudioProgress({ id, duration, seek }) {
+	if (first) {
+		first = false;
+		$begin.selectAll('span').text('Start Audio Tour')
+		setupMode();
+	}
 	$subtitles.classed('is-end', false);
 	scale.time.domain([0, Math.ceil(duration)]);
-	const seconds = zeroPad(Math.round(duration - seek));
+	const seconds = zeroPad(Math.max(0, Math.round(duration - seek)));
 	$tracks
 		.select(`[data-id='${id}'] .timer`)
 		.text(`:${seconds}`)
@@ -547,11 +558,15 @@ function updateScroll() {
 		highlightPeople(trackToPlay.people);
 	}
 
-	const showGrid = closest.index > 0 && window.scrollY > 0;
+	const scrollPast = mobile ? $intro.node().offsetHeight : 0;
+	const showGrid = closest.index > 0 && window.scrollY > scrollPast;
 	$grid.classed('is-visible', showGrid);
 	$legend.classed('is-visible', showGrid);
 	$nametag.classed('is-visible', showGrid);
 	$options.classed('is-visible', showGrid);
+	$tracks.classed('is-visible', showGrid);
+	$subtitles.classed('is-visible', showGrid)
+	$person.selectAll('.chart').classed('is-viewable', showGrid);
 
 	const datum = $p.datum();
 	datum.z_index = 1001;
@@ -650,7 +665,8 @@ function setupAxis() {
 		.tickSize(-personH)
 		.tickPadding(8)
 		.tickFormat((val, i) => {
-			const suffix = val === 35 ? ' months' : '';
+			let suffix = '';
+			if (mobile && val === 30) suffix = ' months';
 			return `${val}${suffix}`;
 		});
 	const axisY = d3
@@ -661,20 +677,26 @@ function setupAxis() {
 			const suffix = i === 8 ? '+ pageviews' : '';
 			return `${d3.format(',')(LEVELS[i])}${suffix}`;
 		});
-	const cardi = $person.filter(d => d.article === 'Cardi_B');
-	const $axis = cardi.select('.g-axis');
+
+	const $axis = $person.select('.g-axis');
 	$axis.append('g.axis--x').call(axisX);
 	$axis.append('g.axis--y').call(axisY);
 
-	const $tickTextX = $axis.select('.axis--x').selectAll('.tick text');
-	const numTicksX = $tickTextX.size() - 1;
-	$tickTextX
+	const $cardi = $person.filter(d => d.article === 'Cardi_B');
+	const numTicksX =
+		$cardi.selectAll('.axis--x .tick text').size() - (mobile ? 2 : 1);
+	const numTicksY = $cardi.selectAll('.axis--y .tick text').size() - 2;
+
+	$axis
+		.select('.axis--x')
+		.selectAll('.tick text')
 		.at('text-anchor', (d, i) => (i === numTicksX ? 'start' : 'middle'))
 		.at('x', (d, i) => (i === numTicksX ? -8 : 0));
 
-	const $tickTextY = $axis.select('.axis--y').selectAll('.tick text');
-	const numTicksY = $tickTextY.size() - 2;
-	$tickTextY.at('x', (d, i) => (i === numTicksY ? 80 : 0));
+	$axis
+		.select('.axis--y')
+		.selectAll('.tick text')
+		.at('x', (d, i) => (i === numTicksY ? 72 : -8));
 }
 
 function setupLegend() {
@@ -700,11 +722,13 @@ function handleMode() {
 		$optSub.text('show subtitles');
 		$optMute.text('mute');
 	}
+
+	if (mobile) window.scrollTo(0, $intro.node().offsetHeight + 1)
 }
 
 function setupMode() {
 	tracker.send({ category: 'mode', action: 'load', once: true });
-	$begin.selectAll('.btn').on('click', handleMode);
+	$begin.selectAll('.btn').on('click', handleMode).classed('is-hidden', false)
 }
 
 function handleMuteClick() {
@@ -757,7 +781,6 @@ function init() {
 	resize();
 	setupGradient();
 	setupLegend();
-	setupMode();
 	setupOptions();
 	loadData();
 	resize();

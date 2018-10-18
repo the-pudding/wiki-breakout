@@ -13,7 +13,7 @@ button
 
 .graphic__subtitles
 	position fixed
-	bottom 0
+	bottom 2rem
 	width 100%
 	max-width 32rem
 	z-index set-index(overlay)
@@ -24,6 +24,8 @@ button
 	visibility hidden
 	left 50%
 	transform translate(-50%, 0)
+	+mq('bp-4')
+		bottom 0
 		
 	&.is-end
 		opacity 0

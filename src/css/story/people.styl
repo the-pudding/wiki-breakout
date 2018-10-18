@@ -1,14 +1,49 @@
 #graphic .graphic__people
 	position absolute
+	&.is-visible
+		.person svg
+				pointer-events auto
 	.person
 		position absolute
 		pointer-events none
 		// SVG
-		svg
+		.chart
 			display block
-			transition opacity 150ms ease-in-out
-			opacity 1
 			pointer-events none
+			opacity 0
+			background $bg
+			position fixed
+			left 50%
+			top 4rem
+			transform translateX(-50%)
+			&.is-viewable
+				opacity 1
+			&:after
+				content ''
+				display block
+				position absolute
+				top 100%
+				left 50%
+				width 200%
+				height 3rem
+				transform translateX(-50%)
+				background linear-gradient(to top,rgba($bg,0) 0, rgba($bg,0.25) 50%, $bg 100%)
+
+			+mq('bp-4')
+				position static
+				left auto
+				top auto
+				opacity 1
+				background transparent
+				transition opacity 150ms ease-in-out
+				transform translateX(0)
+				&:after
+					display none
+		svg
+			width 100%
+			height 100%
+			pointer-events none
+
 		
 		text
 			fill $fg
@@ -43,6 +78,8 @@
 			fill none
 
 		.g-axis
+			+mq('bp-4')
+				display none		
 			path
 				display none
 			line
@@ -52,6 +89,10 @@
 			.axis--x
 				.tick:nth-child(2)
 					display none
+				.tick:nth-child(9) text
+					display none
+					+mq('bp-4')
+						display block
 			.axis--y
 				.tick:nth-child(2),.tick:nth-child(11)
 					display none
@@ -76,25 +117,40 @@
 
 	// INFO
 	.info
-		position absolute
-		width 100%
-		right 100%
+		position relative
+		width 6rem
+		left 0
 		display flex
+		flex-direction column
 		align-items center
-		justify-content flex-end
-		cursor pointer
-		transform translateX(2.5rem)
+		transform translate(-2.5rem, 2.5rem)
+		+mq('bp-4')
+			position absolute
+			width 100%
+			left auto
+			right 100%
+			flex-direction row
+			transform translateX(2.5rem)
+			cursor pointer
+			justify-content flex-end
+			
 		p.name
 			margin 0.5em
-			set-type-size(root, false)
+			set-type-size(x-small, false)
+			text-align center
 			line-height 1.2
-			order 0
-			text-align right
 			opacity 0
 			text-shadow 0 0 1px $fg
 			font-weight 600
-			display inline-block
 			position relative
+			order 1
+			width 100%
+			+mq('bp-4')
+				transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+				set-type-size(root, false)
+				order 0
+				text-align right
+				display inline-block
 			.display
 				background-color rgba($bg, 0.9)
 				padding 0.25em
@@ -115,42 +171,57 @@
 			background-position 50% 0
 			filter grayscale(50%)
 			box-shadow 0 0 6px 3px $bg
-			transform scale(0.5) translate(50%, -50%)
 			pointer-events auto
+			transform scale(0.5) translate(0, -50%)
+			+mq('bp-4')
+				transform scale(0.5) translate(50%, -50%)
 
 
 		span.description
 			position absolute
 			top 100%
-			right 0
+			right 50%
 			margin 0
 			set-type-size(xx-small, true)
 			font-weight 400
 			color darken($fg, 20)
 			padding 0 0.5em
 			opacity 0
-			transform translateY(-2.5rem)
 			text-transform uppercase
+			transform translate(50%, -2.5rem)
 			letter-spacing 0.05em
 			background-color rgba($bg, 0.9)
-			text-align right
 			box-shadow -0.25rem 0 0 rgba($bg, 0.9), 0.25rem 0 0 rgba($bg, 0.9)
-	
+			text-align center
+			+mq('bp-4')
+				right 0
+				transform translateY(-2.5rem)
+				text-align right
+
+				
 	.person.is-highlight
 		p.name
 			opacity 1
-			transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+			transform translate(0, $thumb-size * -0.5)
+			+mq('bp-4')
+				transform translate($thumb-size * 0.5, $thumb-size * -0.25)
 		span.description
 			opacity 1
-			transform translate(0, 0)
+			transform translate(50%, 0)
+			+mq('bp-4')
+				transform translate(0, 0)
 
 	.person.is-hover
 		p.name
 			opacity 1
-			transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+			transform translate(0, $thumb-size * -0.5)
+			+mq('bp-4')
+				transform translate($thumb-size * 0.5, $thumb-size * -0.25)
 		span.description
 			opacity 1
-			transform translate(0, 0)
+			transform translate(50%, 0)
+			+mq('bp-4')
+				transform translate(0, 0)
 		svg
 			opacity 1
 			.snake--inner
@@ -162,7 +233,9 @@
 		pointer-events auto
 		p.name
 			opacity 1
-			transform translate(0,0)
+			transform translate(0, 0)
+			+mq('bp-4')
+				transform translate(0, 0)
 		.thumbnail
 			// transition transform 250ms ease-in-out
 			transform scale(1) translate(0, 0)
@@ -170,15 +243,20 @@
 			border-color $fg
 		span.description
 			opacity 1
-			transform translateY(0)
+			transform translate(50%, 0)
+			+mq('bp-4')
+				transform translate(0, 0)
 		svg
-			pointer-events auto
 			opacity 1
 			cursor crosshair
 			.snake--inner
 				fill url('#linear-gradient--inner')
 			.snake--outer
 				stroke url('#linear-gradient--outer')
+
+	.person[data-article="Cardi_B"]
+		.g-axis
+			display block
 
 @keyframes tick
 	0%
@@ -190,4 +268,5 @@
 	100%
 		fill $fg
 		opacity 0.8
+
 

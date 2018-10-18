@@ -3,17 +3,16 @@
 	<p class='intro__byline'>By
 		<a href='{{meta.author.url}}' target='_blank'>
 			<strong>{{meta.author.name}}</strong>
-		</a>
-		and
+		</a>&nbsp;+
 		<a href='{{meta.author2.url}}' target='_blank'>
 			<strong>{{meta.author2.name}}</strong>
 		</a>
 	</p>
 	<div class='intro__begin'>
 		<div class='begin__modes'>
-			<button class='btn btn--manual' data-mode='manual'>Start Audio Tour @@include('volume-2.svg')</button>
+			<button class='btn btn--manual' data-mode='manual'><span>Loading...</span> @@include('volume-2.svg')</button>
 		</div>
-		<button class='btn btn--text' data-mode='text'>I'm just browsing</button>
+		<button class='btn btn--text is-hidden' data-mode='text'>I'm just browsing</button>
 	</div>
 	
 </div>

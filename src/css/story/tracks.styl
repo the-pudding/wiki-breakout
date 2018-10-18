@@ -1,12 +1,25 @@
 #graphic .graphic__tracks
 	width 100%
 	position relative
+	opacity 1
+	&.is-visible:after
+		content ''
+		display block
+		width 100%
+		height 100vh
+		position fixed
+		top 4rem
+		left 0
+		background $bg
+		+mq('bp-4')
+			display none
 	.track
-		padding-left 2rem
+		padding-left 0.5rem
 		top 0
 		left 0
 		position relative
-		// border 2px solid white
+		+mq('bp-4')
+			padding-left 2rem
 	.timer
 		position sticky
 		top 0
