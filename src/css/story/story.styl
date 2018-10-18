@@ -24,7 +24,7 @@ button
 	visibility hidden
 	left 50%
 	transform translate(-50%, 0)
-	+mq('bp-4')
+	+mq('bp')
 		bottom 0
 		
 	&.is-end
@@ -60,7 +60,9 @@ button
 		
 #outro
 	padding 1rem
-	margin-top 10rem
+	margin-top 0
+	+mq('bp')
+		margin-top 10rem
 	a
 		text-decoration none
 		border-bottom 1px solid $bg
@@ -74,3 +76,13 @@ button
 		max-width 42rem
 		margin 1.5rem auto
 		padding 0.75rem
+
+.hide--mobile
+	display none
+	+mq('bp')
+		display block
+
+.hide--desktop
+	display block
+	+mq('bp')
+		display none

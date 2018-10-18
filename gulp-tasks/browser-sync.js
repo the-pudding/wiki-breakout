@@ -11,7 +11,7 @@ gulp.task('browser-sync', () => {
 		port: 4000,
 		notify: false,
 		ghostMode: true,
-		online: false
+		online: true
 	});
 });
 

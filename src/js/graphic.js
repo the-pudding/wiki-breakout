@@ -36,7 +36,7 @@ let prevTrack = null;
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 const svgMargin = { top: 16, right: 0, bottom: 24, left: 54 };
-const BP = 640;
+const BP = 880;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
 const COLORS = [
@@ -248,6 +248,7 @@ function renderNametag(data) {
 }
 
 function renderPerson(data) {
+	if (mobile) data.reverse();
 	$person = $people.selectAll('.person').data(data, d => d.article);
 
 	const $personEnter = $person.enter().append('div.person');
@@ -255,7 +256,11 @@ function renderPerson(data) {
 	const $chartEnter = $personEnter.append('div.chart');
 	const $svgEnter = $chartEnter.append('svg');
 
-	$svgEnter.on('mousemove touchmove', handleMouseMove).on('mouseleave touchend', handleMouseLeave);
+	if (mobile) $personEnter.classed('is-active', true)
+
+	$svgEnter
+		.on('mousemove touchmove', handleMouseMove)
+		.on('mouseleave touchend', handleMouseLeave);
 
 	$svgEnter.append('g.g-axis');
 	const $visEnter = $svgEnter.append('g.g-vis');
@@ -315,7 +320,8 @@ function updateDimensions() {
 
 function resize() {
 	updateDimensions();
-	$people.st({ width, height, top: margin.top, left: margin.left });
+	if (!mobile)
+		$people.st({ width, height, top: margin.top, left: margin.left });
 	$tracks.st({ width: margin.left, height, top: personH / 2 });
 
 	scale.gridX.range([margin.left, width - margin.right]);
@@ -335,11 +341,11 @@ function resize() {
 	$person.each((d, i, n) => {
 		const [x, y] = translatePerson(d);
 		const $p = d3.select(n[i]);
-		$p.st('top', y).st('left', x);
-		$p.select('.info').st('top', d.svg.start_y + svgMargin.top);
-
-		$p.select('.info .name').st('max-width', mobile ? '100%' : margin.left);
-
+		if (!mobile) {
+			$p.st('top', y).st('left', x);
+			$p.select('.info').st('top', d.svg.start_y + svgMargin.top);
+			$p.select('.info .name').st('max-width', mobile ? '100%' : margin.left);
+		}
 		$p.select('.chart').st({
 			width: personW + svgMargin.left + svgMargin.right,
 			height: personH + svgMargin.top + svgMargin.bottom
@@ -473,7 +479,7 @@ function handleAudioEnd() {
 function handleAudioProgress({ id, duration, seek }) {
 	if (first) {
 		first = false;
-		$begin.selectAll('span').text('Start Audio Tour')
+		$begin.selectAll('span').text('Start Audio Tour');
 		setupMode();
 	}
 	$subtitles.classed('is-end', false);
@@ -525,7 +531,7 @@ function updateScroll() {
 		const opacity = Math.min(0.67, percentInverted * percentInverted);
 
 		const $el = d3.select(personElements[i]);
-		if (!$el.classed('is-highlight')) $el.st({ opacity });
+		// if (!$el.classed('is-highlight')) $el.st({ opacity });
 	});
 
 	const el = personElements[closest.index];
@@ -565,8 +571,8 @@ function updateScroll() {
 	$nametag.classed('is-visible', showGrid);
 	$options.classed('is-visible', showGrid);
 	$tracks.classed('is-visible', showGrid);
-	$subtitles.classed('is-visible', showGrid)
-	$person.selectAll('.chart').classed('is-viewable', showGrid);
+	$subtitles.classed('is-visible', showGrid);
+	$person.selectAll('.chart').classed('is-visible', showGrid);
 
 	const datum = $p.datum();
 	datum.z_index = 1001;
@@ -579,6 +585,8 @@ function updateScroll() {
 	if (prevPersonIndex >= 0 && prevPersonIndex !== closest.index)
 		resetPerson(d3.select(personElements[prevPersonIndex]));
 	prevPersonIndex = closest.index;
+
+	// window.requestAnimationFrame(updateScroll);
 }
 
 function onScroll() {
@@ -589,6 +597,7 @@ function onScroll() {
 }
 
 function setupScroll() {
+	// onScroll();
 	window.addEventListener('scroll', onScroll, true);
 }
 
@@ -696,7 +705,7 @@ function setupAxis() {
 	$axis
 		.select('.axis--y')
 		.selectAll('.tick text')
-		.at('x', (d, i) => (i === numTicksY ? 72 : -8));
+		.at('x', (d, i) => (i === numTicksY ? 68 : -12));
 }
 
 function setupLegend() {
@@ -723,12 +732,15 @@ function handleMode() {
 		$optMute.text('mute');
 	}
 
-	if (mobile) window.scrollTo(0, $intro.node().offsetHeight + 1)
+	if (mobile) window.scrollTo(0, $intro.node().offsetHeight + 1);
 }
 
 function setupMode() {
 	tracker.send({ category: 'mode', action: 'load', once: true });
-	$begin.selectAll('.btn').on('click', handleMode).classed('is-hidden', false)
+	$begin
+		.selectAll('.btn')
+		.on('click', handleMode)
+		.classed('is-hidden', false);
 }
 
 function handleMuteClick() {
@@ -760,15 +772,15 @@ function loadData() {
 		(err, response) => {
 			if (err) console.log(err);
 			else {
-				Audio.init(response[0], tracks, handleAudioProgress, handleAudioEnd);
+				Audio.init(response[0], tracks, handleAudioProgress, handleAudioEnd, mobile);
 				joinedData = joinData(response);
 				renderPerson(joinedData);
-				renderNametag(joinedData);
-				renderTracks();
+				if (!mobile) renderNametag(joinedData);
+				if (!mobile) renderTracks();
 				setupAxis();
 				resize();
-				setupScroll();
-				updateScroll();
+				if (!mobile) setupScroll();
+				if (!mobile) updateScroll();
 				$section.classed('is-visible', true);
 				preloadImages(joinedData);
 			}
@@ -780,7 +792,6 @@ function init() {
 	updateDimensions();
 	resize();
 	setupGradient();
-	setupLegend();
 	setupOptions();
 	loadData();
 	resize();

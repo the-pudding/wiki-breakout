@@ -1,8 +1,8 @@
 <section id='graphic'>
 	<div class='graphic__people'></div>
-	<div class='graphic__tracks'></div>
-	<ul class='graphic__nametag'></ul>
-	<div class='graphic__grid'>
+	<div class='graphic__tracks hide--mobile'></div>
+	<ul class='graphic__nametag hide--mobile'></ul>
+	<div class='graphic__grid hide--mobile'>
 		<div class='grid grid__x'>
 			<p class='x--left'>@@include('arrow-left.svg') Ascended faster</p>
 			<p class='x--right'>Ascended slower @@include('arrow-right.svg')</p>
@@ -12,13 +12,13 @@
 			<p class='y--top'>More pageviews @@include('arrow-right.svg')</p>
 		</div>
 	</div>
-	<ul class='graphic__legend'>
+	{{!-- <ul class='graphic__legend'>
 
-	</ul>
-	<div class='graphic__subtitles is-visible is-end'>
+	</ul> --}}
+	<div class='graphic__subtitles is-visible is-end hide--mobile'>
 		<p></p>
 	</div>
-	<div class='graphic__options'>
+	<div class='graphic__options hide--mobile'>
 		<button class='btn btn--mute'>unmute</button>
 		<button class='btn btn--sub'>hide subtitles</button>
 	</div>
