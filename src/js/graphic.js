@@ -38,7 +38,7 @@ let prevTrack = null;
 
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-const svgMargin = { top: 16, right: 28, bottom: 24, left: 54 };
+const svgMargin = { top: 16, right: 32, bottom: 24, left: 54 };
 const BP = 880;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
