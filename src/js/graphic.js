@@ -35,7 +35,7 @@ let prevTrack = null;
 
 const fallbackImg = 'assets/img/fallback.jpg';
 const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-const svgMargin = { top: 16, right: 0, bottom: 24, left: 54 };
+const svgMargin = { top: 16, right: 28, bottom: 24, left: 54 };
 const BP = 880;
 const LEVELS = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 const LEVELS_REVERSE = LEVELS.map(d => d).reverse();
@@ -256,7 +256,7 @@ function renderPerson(data) {
 	const $chartEnter = $personEnter.append('div.chart');
 	const $svgEnter = $chartEnter.append('svg');
 
-	if (mobile) $personEnter.classed('is-active', true)
+	if (mobile) $personEnter.classed('is-active', true);
 
 	$svgEnter
 		.on('mousemove touchmove', handleMouseMove)
@@ -531,7 +531,7 @@ function updateScroll() {
 		const opacity = Math.min(0.67, percentInverted * percentInverted);
 
 		const $el = d3.select(personElements[i]);
-		// if (!$el.classed('is-highlight')) $el.st({ opacity });
+		if (!$el.classed('is-highlight')) $el.st({ opacity });
 	});
 
 	const el = personElements[closest.index];
@@ -772,7 +772,13 @@ function loadData() {
 		(err, response) => {
 			if (err) console.log(err);
 			else {
-				Audio.init(response[0], tracks, handleAudioProgress, handleAudioEnd, mobile);
+				Audio.init(
+					response[0],
+					tracks,
+					handleAudioProgress,
+					handleAudioEnd,
+					mobile
+				);
 				joinedData = joinData(response);
 				renderPerson(joinedData);
 				if (!mobile) renderNametag(joinedData);

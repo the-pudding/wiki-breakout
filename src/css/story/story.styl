@@ -62,7 +62,7 @@ button
 	padding 1rem
 	margin-top 0
 	+mq('bp')
-		margin-top 10rem
+		margin-top 3rem
 	a
 		text-decoration none
 		border-bottom 1px solid $bg
@@ -78,11 +78,9 @@ button
 		padding 0.75rem
 
 .hide--mobile
-	display none
-	+mq('bp')
-		display block
+	@media (max-width: 879px)
+		display none
 
 .hide--desktop
-	display block
 	+mq('bp')
 		display none

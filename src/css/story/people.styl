@@ -21,7 +21,6 @@
 			+mq('bp')
 				transition opacity 150ms ease-in-out
 				transform translateX(0)
-				pointer-events none
 			&.is-visible
 				opacity 1
 		svg
@@ -194,7 +193,7 @@
 		p.name
 			opacity 1
 			+mq('bp')
-				transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+				transform translate($thumb-size * 0.5, 0)
 		span.description
 			opacity 1
 			+mq('bp')
@@ -204,7 +203,7 @@
 		p.name
 			opacity 1
 			+mq('bp')
-				transform translate($thumb-size * 0.5, $thumb-size * -0.25)
+				transform translate($thumb-size * 0.5, 0)
 		span.description
 			opacity 1
 			+mq('bp')
@@ -217,20 +216,22 @@
 				stroke url('#linear-gradient--outer')
 	
 	.person.is-active
-		pointer-events auto
 		p.name
+			opacity 1
 			+mq('bp')
-				transform translate(0, 0)
+				transform translate(0, 50%)
 		.thumbnail
 			transform scale(1) translate(0, 0)
 			box-shadow 0 0 3px 3px $fg
 			border-color $fg
 		span.description
+			opacity 1
 			+mq('bp')
 				transform translate(0, 0)
 		svg
 			opacity 1
 			cursor crosshair
+			pointer-events auto
 			.snake--inner
 				fill url('#linear-gradient--inner')
 			.snake--outer
