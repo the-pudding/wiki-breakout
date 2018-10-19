@@ -3,7 +3,7 @@ import 'stickyfilljs';
 import Audio from './audio';
 import loadImage from './utils/load-image';
 import tracker from './utils/tracker';
-import { tracks } from './tracks.json';
+import { tracks, annotations } from './tracks.json';
 
 // reverse subtitles
 tracks.forEach(t => {
@@ -16,6 +16,9 @@ tracks.forEach(t => {
 	t.subtitles = t.subtitles.map(s => ({ ...s, time: s.time ? +s.time : 0 }));
 	if (t.tutorial) t.tutorial = t.tutorial.map(v => ({ ...v, time: +v.time }));
 });
+
+const volumeSvg =
+	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
 
 let first = true;
 let ticking = false;
@@ -211,6 +214,30 @@ function translatePerson(d) {
 	];
 }
 
+function toggleAnnotation(d) {
+	const $btn = d3.select(this);
+	const { article } = d;
+	const id = $btn.at('data-id');
+	if ($btn.classed('is-playing')) {
+		$btn.classed('is-playing', false);
+		Audio.pauseAnno({ article, id });
+		$btn.select('.time').classed('is-visible', false)
+		$btn.select('.icon').classed('is-visible', true)
+	} else {
+		Audio.playAnno({ article, id, cb: handleAnnoProgress });
+	}
+}
+
+function renderAnnotations() {
+	const persons = annotations.map(d => d.person);
+	$person.filter(d => persons.includes(d.article)).each((d, i, n) => {
+		const $p = d3.select(n[i]);
+		$p.select('button.annotation')
+			.at('data-id', d => annotations.find(a => a.person === d.article).id)
+			.on('click', toggleAnnotation);
+	});
+}
+
 function renderTracks() {
 	const $trackEnter = $tracks
 		.selectAll('.track')
@@ -254,7 +281,7 @@ function renderPerson(data) {
 	const $personEnter = $person.enter().append('div.person');
 	const $infoEnter = $personEnter.append('div.info');
 	const $chartEnter = $personEnter.append('div.chart');
-	const $svgEnter = $chartEnter.append('svg');
+	const $svgEnter = $chartEnter.append('svg.viz');
 
 	if (mobile) $personEnter.classed('is-active', true);
 
@@ -271,6 +298,10 @@ function renderPerson(data) {
 	const $name = $infoEnter.append('p.name');
 	$name.append('span.display');
 	$name.append('span.description');
+
+	const $a = $name.append('button.annotation');
+	$a.append('div.icon.is-visible').html(volumeSvg);
+	$a.append('p.time');
 
 	$infoEnter
 		.append('div.thumbnail')
@@ -350,7 +381,7 @@ function resize() {
 			width: personW + svgMargin.left + svgMargin.right,
 			height: personH + svgMargin.top + svgMargin.bottom
 		});
-		const $svg = $p.select('svg');
+		const $svg = $p.select('svg.viz');
 		// $svg.at({
 		// 	width: personW + svgMargin.left + svgMargin.right,
 		// 	height: personH + svgMargin.top + svgMargin.bottom
@@ -476,11 +507,30 @@ function handleAudioEnd() {
 	$subtitles.classed('is-end', true);
 }
 
+function handleAnnoProgress({ article, duration, seek }) {
+	// $subtitles.classed('is-end', false);
+	scale.time.domain([0, Math.ceil(duration)]);
+	const s = Math.max(0, Math.round(duration - seek))
+	const seconds = zeroPad(s);
+	const $a = $people
+		.select(`[data-article="${article}"] .annotation`)
+		.st('background-color', scale.time(seconds));
+	$a.select('.icon').classed('is-visible', false);
+	$a.select('.time').classed('is-visible', true).text(`:${seconds}`);
+	if (s <= 0) {
+		$a.classed('is-playing', false)
+			.st('background-color', scale.time.range()[0]);
+		$a.select('.icon').classed('is-visible', true);
+		$a.select('.time').classed('is-visible', false);
+	}
+	// if (seek > 0) updateSubtitle({ id, seek });
+}
+
 function handleAudioProgress({ id, duration, seek }) {
 	if (first) {
 		first = false;
 		$begin.selectAll('span').text('Start Audio Tour');
-		setupMode();
+		if (!mobile) setupMode();
 	}
 	$subtitles.classed('is-end', false);
 	scale.time.domain([0, Math.ceil(duration)]);
@@ -675,7 +725,7 @@ function setupAxis() {
 		.tickPadding(8)
 		.tickFormat((val, i) => {
 			let suffix = '';
-			if (mobile && val === 30) suffix = ' months';
+			if (val === 30) suffix = ' months';
 			return `${val}${suffix}`;
 		});
 	const axisY = d3
@@ -683,7 +733,7 @@ function setupAxis() {
 		.tickSize(-personW)
 		.tickPadding(8)
 		.tickFormat((val, i) => {
-			const suffix = i === 8 ? '+ pageviews' : '';
+			const suffix = i === 8 ? '+ views/day' : '';
 			return `${d3.format(',')(LEVELS[i])}${suffix}`;
 		});
 
@@ -692,8 +742,7 @@ function setupAxis() {
 	$axis.append('g.axis--y').call(axisY);
 
 	const $cardi = $person.filter(d => d.article === 'Cardi_B');
-	const numTicksX =
-		$cardi.selectAll('.axis--x .tick text').size() - (mobile ? 2 : 1);
+	const numTicksX = $cardi.selectAll('.axis--x .tick text').size() - 2;
 	const numTicksY = $cardi.selectAll('.axis--y .tick text').size() - 2;
 
 	$axis
@@ -775,6 +824,7 @@ function loadData() {
 				Audio.init(
 					response[0],
 					tracks,
+					annotations,
 					handleAudioProgress,
 					handleAudioEnd,
 					mobile
@@ -783,6 +833,7 @@ function loadData() {
 				renderPerson(joinedData);
 				if (!mobile) renderNametag(joinedData);
 				if (!mobile) renderTracks();
+				if (mobile) renderAnnotations();
 				setupAxis();
 				resize();
 				if (!mobile) setupScroll();

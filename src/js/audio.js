@@ -5,14 +5,55 @@ const path = 'assets/audio';
 const pathBg = 'assets/preview';
 const tracks = {};
 const bg = {};
+const annotations = {};
 let current = null;
 let currentBg = null;
 let progressCallback = null;
+let progressAnnoCallback = null;
+let currentAnno = null;
 let timer = null;
 let files = [];
 let bgFiles = [];
+let annoFiles = [];
 
 Howler.volume(0);
+
+function pauseAnno({ article, id }) {
+	if (annotations[id]) {
+		annotations[id].stop();
+		const $a = d3
+			.selectAll('.person .annotation')
+			.classed('is-playing', false)
+			.st('background-color', '#ffe566');
+		$a.select('.icon').classed('is-visible', true);
+		$a.select('.time').classed('is-visible', false);
+		d3.select(`.person[data-article="${article}"] .annotation`).classed(
+			'is-playing',
+			false
+		);
+	}
+}
+
+function playAnno({ article, id, cb }) {
+	progressAnnoCallback = cb;
+	Howler.volume(0.75);
+	if (currentAnno) annotations[currentAnno.id].stop();
+	if (annotations[id]) {
+		const $a = d3
+			.selectAll('.person .annotation')
+			.classed('is-playing', false)
+			.st('background-color', '#ffe566');
+		$a.select('.icon').classed('is-visible', true);
+		$a.select('.time').classed('is-visible', false);
+		d3.select(`.person[data-article="${article}"] .annotation`).classed(
+			'is-playing',
+			true
+		);
+		currentAnno = { id, article };
+		annotations[id].play();
+		timer = d3.timeout(progressAnno, 250);
+	}
+}
 
 function toggle(should) {
 	Howler.volume(should ? 0.75 : 0);
@@ -29,6 +70,15 @@ function pause() {
 		t.fade(t.volume(), 0, FADE_DUR);
 		d3.select(current.el).st('color', 'black');
 	}
+}
+
+function progressAnno() {
+	if (annotations[currentAnno.id].playing() && progressAnnoCallback) {
+		const duration = annotations[currentAnno.id].duration();
+		const seek = annotations[currentAnno.id].seek();
+		progressAnnoCallback({ article: currentAnno.article, duration, seek });
+	}
+	timer = d3.timeout(progressAnno, 250);
 }
 
 function progress() {
@@ -67,6 +117,33 @@ function playBg(article) {
 		track.play();
 		track.fade(0, 0.4, FADE_DUR * 4);
 	}
+}
+
+function loadAnno() {
+	let i = 0;
+
+	const loadNext = () => {
+		const f = annoFiles[i].id;
+		const a = annoFiles[i].article;
+		const t = new Howl({
+			src: `${path}/${f.replace(/[^\w]/g, '')}.mp3`,
+			loop: false,
+			onload: () => {
+				annotations[f] = t;
+				const $a = d3.select(`.person[data-article="${a}"] .annotation`);
+				$a.classed('is-visible', true);
+				advance();
+			},
+			onloaderror: advance
+		});
+	};
+
+	const advance = () => {
+		i += 1;
+		if (i < annoFiles.length) loadNext();
+	};
+
+	loadNext();
 }
 
 function loadBg() {
@@ -127,10 +204,19 @@ function load(cbProgress, cbEnd) {
 	loadNext();
 }
 
-function init(peopleData, trackData, cbProgress, cbEnd) {
+function init(
+	peopleData,
+	trackData,
+	annotationData,
+	cbProgress,
+	cbEnd,
+	mobile
+) {
 	files = trackData.map(t => ({ id: t.id }));
 	bgFiles = peopleData.filter(d => d.spotify_url).map(d => d.article);
-	load(cbProgress, cbEnd);
+	annoFiles = annotationData.map(t => ({ article: t.person, id: t.id }));
+	if (mobile) loadAnno();
+	else load(cbProgress, cbEnd);
 }
 
-export default { init, play, playBg, mute, toggle };
+export default { init, play, playBg, mute, toggle, playAnno, pauseAnno };
