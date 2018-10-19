@@ -25,12 +25,14 @@ button
 	left 50%
 	transform translate(-50%, 0)
 	+mq('bp')
-		bottom 0
-		
+		bottom 0	
 	&.is-end
-		opacity 0
+		visibility hidden
 	&.is-visible
 		visibility visible
+	&.is-disabled
+		visibility hidden
+		
 	p
 		margin 0
 		set-type-size(small, true)

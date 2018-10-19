@@ -776,7 +776,7 @@ function handleMode() {
 	tracker.send({ category: 'mode', action: mode, once: true });
 	if (mode !== 'text') {
 		Audio.toggle(true);
-		$subtitles.classed('is-visible', false);
+		$subtitles.classed('is-disabled', true);
 		$optSub.text('show subtitles');
 		$optMute.text('mute');
 	}
@@ -803,7 +803,7 @@ function handleMuteClick() {
 function handleSubClick() {
 	const $el = d3.select(this);
 	let text = $el.text();
-	$subtitles.classed('is-visible', text === 'show subtitles');
+	$subtitles.classed('is-disabled', text !== 'show subtitles');
 	text = text === 'show subtitles' ? 'hide subtitles' : 'show subtitles';
 	$el.text(text);
 }

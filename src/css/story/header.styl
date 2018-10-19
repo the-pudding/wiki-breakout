@@ -5,12 +5,14 @@ header
 	left 0
 	width 100%
 	background-color $bg
+	pointer-events none
 
 	a.logo
 		display block
 		border none
 		max-width 9rem
 		margin 1rem auto
+		pointer-events auto
 
 		svg
 			fill $off-black
@@ -31,6 +33,7 @@ header.is-sticky
 		margin 0 auto
 	
 	.header__toggle
+		pointer-events auto
 		position fixed
 		transform translate3d(0,0,0)
 		top 0
